@@ -6,15 +6,6 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 	<link type="text/css" rel="stylesheet" href="main.css">
-	<script type="text/javascript">
-		function takeShot() {
-				const canvas = document.getElementsByTagName('canvas')[0];
-				alert('alive 1!')
-				var base64image = canvas.toDataURL("image/png");
-				alert('alive 2!')
-				window.location.href=base64image;
-			}
-	</script>
 </head>
 
 <body id="screenshot">
@@ -22,240 +13,245 @@
 	<div id="info">
 		<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - paint<br />(Chrome Android 81+)
 	</div>
-		<div id="ar-overly">
-			<button type="button" onclick="takeShot()">Take Screenshot</button>
-		</div>
-		<div id="output"></div>
-		<script type="module">
+	<div id="ar-overly">
+		<button id="button-action" type="button" >Take Screenshot</button>
+	</div>
+	<div id="output"></div>
+	<script type="module">
 
-			import * as THREE from './node_modules/three/build/three.module.js';
-			import { TubePainter } from './node_modules/three/examples/jsm/misc/TubePainter.js';
-			import { ARButton } from './node_modules/three/examples/jsm/webxr/ARButton.js';
-			import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+		import * as THREE from './node_modules/three/build/three.module.js';
+		import { TubePainter } from './node_modules/three/examples/jsm/misc/TubePainter.js';
+		import { ARButton } from './node_modules/three/examples/jsm/webxr/ARButton.js';
+		import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 
-			let container;
-			let camera, scene, renderer;
-			let controller, painter, aircraft;
-			let animationCycleStart = new Date();
-			const cursor = new THREE.Vector3();
-			const locations = [];
+		let container;
+		let camera, scene, renderer;
+		let controller, painter, aircraft;
+		let animationCycleStart = new Date();
+		const cursor = new THREE.Vector3();
+		const locations = [];
 
-			init();
-			animate();
+		init();
+		animate();
 
-			function init() {
+		function init() {
 
-				container = document.createElement('div');
-				document.body.appendChild(container);
+			container = document.createElement('div');
+			document.body.appendChild(container);
 
-				scene = new THREE.Scene();
+			scene = new THREE.Scene();
 
-				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-
-				//
-
-				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-				renderer.setPixelRatio(window.devicePixelRatio);
-				renderer.setSize(window.innerWidth, window.innerHeight);
-				renderer.xr.enabled = true;
-				container.appendChild(renderer.domElement);
-
-				//
-
-				document.body.appendChild(ARButton.createButton(renderer, {
-					optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
-					domOverlay: { root: document.getElementById("ar-overly") }
-				})
-				);
-				// model
-
-				const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-				light.position.set(0, 1, 0);
-				scene.add(light);
-
-				//
-
-				painter = new TubePainter();
-				painter.setSize(0.1);
-				painter.mesh.material.side = THREE.DoubleSide;
-				scene.add(painter.mesh);
-
-				//
-
-				function onSelectStart() {
-
-					this.userData.isSelecting = true;
-					this.userData.skipFrames = 2;
-
-				}
-
-				function onSelectEnd() {
-
-					this.userData.isSelecting = false;
-
-				}
-
-				controller = renderer.xr.getController(0);
-				controller.addEventListener('selectstart', onSelectStart);
-				controller.addEventListener('selectend', onSelectEnd);
-				controller.userData.skipFrames = 0;
-				scene.add(controller);
-
-				//
-
-				window.addEventListener('resize', onWindowResize);
-
-				const loader = new GLTFLoader();
-				loader.load('./iaf_spitfire_mk9/scene.gltf', function (gltf) {
-					aircraft = gltf.scene;
-					aircraft.children[0].scale.set(.05, .05, .05);
-					scene.add(aircraft);
-				}, undefined, function (error) {
-					console.error(error);
-				});
-
-				//
-
-				window.addEventListener( 'resize', onWindowResize );
-
-				//
-
-				if ( typeof TESTING !== 'undefined' ) {
-
-					for ( let i = 0; i < 50; i ++ ) {
-
-						simulate( 500 - 10 * i );
-
-					}
-
-				}
-
-
-			}
-
-			function onWindowResize() {
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize(window.innerWidth, window.innerHeight);
-
-			}
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
 			//
 
-			function handleController(controller) {
+			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.xr.enabled = true;
+			container.appendChild(renderer.domElement);
 
-				const userData = controller.userData;
+			//
 
-				cursor.set(0, 0, - 0.2).applyMatrix4(controller.matrixWorld);
+			document.body.appendChild(ARButton.createButton(renderer, {
+				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
+				domOverlay: { root: document.getElementById("ar-overly") }
+			})
+			);
+			document.getElementById("button-action").addEventListener("click", (e) => {
+				const canvas = document.getElementsByTagName('canvas')[0];
+				var base64image = canvas.toDataURL("image/png");
+				window.location.href = base64image;
+			})
+			// model
 
-				if (userData.isSelecting === true) {
+			const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+			light.position.set(0, 1, 0);
+			scene.add(light);
 
-					if (userData.skipFrames >= 0) {
+			//
 
-						// TODO(mrdoob) Revisit this
+			painter = new TubePainter();
+			painter.setSize(0.1);
+			painter.mesh.material.side = THREE.DoubleSide;
+			scene.add(painter.mesh);
 
-						userData.skipFrames--;
+			//
 
-						painter.moveTo(cursor);
+			function onSelectStart() {
 
-					} else {
+				this.userData.isSelecting = true;
+				this.userData.skipFrames = 2;
 
-						painter.lineTo(cursor);
-						locations.push([cursor.x, cursor.y, cursor.z])
-						painter.update();
+			}
 
-					}
+			function onSelectEnd() {
+
+				this.userData.isSelecting = false;
+
+			}
+
+			controller = renderer.xr.getController(0);
+			controller.addEventListener('selectstart', onSelectStart);
+			controller.addEventListener('selectend', onSelectEnd);
+			controller.userData.skipFrames = 0;
+			scene.add(controller);
+
+			//
+
+			window.addEventListener('resize', onWindowResize);
+
+			const loader = new GLTFLoader();
+			loader.load('./iaf_spitfire_mk9/scene.gltf', function (gltf) {
+				aircraft = gltf.scene;
+				aircraft.children[0].scale.set(.05, .05, .05);
+				scene.add(aircraft);
+			}, undefined, function (error) {
+				console.error(error);
+			});
+
+			//
+
+			window.addEventListener('resize', onWindowResize);
+
+			//
+
+			if (typeof TESTING !== 'undefined') {
+
+				for (let i = 0; i < 50; i++) {
+
+					simulate(500 - 10 * i);
 
 				}
 
 			}
 
-			function animate() {
 
-				renderer.setAnimationLoop(render);
+		}
 
-			}
+		function onWindowResize() {
 
-			function render() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
 
-				handleController(controller);
-				if (aircraft)
-					placeAircraft()
-				renderer.render(scene, camera);
+			renderer.setSize(window.innerWidth, window.innerHeight);
 
-			}
+		}
 
-			//// NOAM code
+		//
 
-			function placeAircraft() {
-				if (locations.length === 0)
-					aircraft?.children[0].position.set(0, 0, 0)
-				else if (locations.length === 1)
-					aircraft?.children[0].position.set(...locations[0])
-				else {
-					const newLocIdx = Math.floor(getCurrentTravelPercent() * locations.length);
-					const currLoc = locations[newLocIdx],
-						nextLoc = locations[(newLocIdx + 1) % locations.length],
-						prevLoc = locations[(newLocIdx - 1 + locations.length) % locations.length];
-					aircraft?.children[0].position.set(...currLoc)
+		function handleController(controller) {
 
-					const locDiff = [
-						nextLoc[0] - prevLoc[0],
-						nextLoc[1] - prevLoc[1],
-						nextLoc[2] - prevLoc[2]
-					]
-					const yaw = Math.atan2(locDiff[2], locDiff[0])
-					const pitch = Math.atan2(locDiff[1], Math.sqrt(locDiff[0] * locDiff[0] + locDiff[2] * locDiff[2]))
-					const q = toQuaternion(pitch, Math.PI - yaw, -Math.PI / 2);
-					aircraft.children[0].setRotationFromQuaternion(q)
+			const userData = controller.userData;
+
+			cursor.set(0, 0, - 0.2).applyMatrix4(controller.matrixWorld);
+
+			if (userData.isSelecting === true) {
+
+				if (userData.skipFrames >= 0) {
+
+					// TODO(mrdoob) Revisit this
+
+					userData.skipFrames--;
+
+					painter.moveTo(cursor);
+
+				} else {
+
+					painter.lineTo(cursor);
+					locations.push([cursor.x, cursor.y, cursor.z])
+					painter.update();
+
 				}
+
 			}
 
-			function getCurrentTravelPercent() {
-				const totalMillis = travelLength(locations) * 5000;
-				if (Date.now() - animationCycleStart > totalMillis)
-					animationCycleStart = Date.now();
+		}
 
-				return (Date.now() - animationCycleStart) / totalMillis;
+		function animate() {
+
+			renderer.setAnimationLoop(render);
+
+		}
+
+		function render() {
+
+			handleController(controller);
+			if (aircraft)
+				placeAircraft()
+			renderer.render(scene, camera);
+
+		}
+
+		//// NOAM code
+
+		function placeAircraft() {
+			if (locations.length === 0)
+				aircraft?.children[0].position.set(0, 0, 0)
+			else if (locations.length === 1)
+				aircraft?.children[0].position.set(...locations[0])
+			else {
+				const newLocIdx = Math.floor(getCurrentTravelPercent() * locations.length);
+				const currLoc = locations[newLocIdx],
+					nextLoc = locations[(newLocIdx + 1) % locations.length],
+					prevLoc = locations[(newLocIdx - 1 + locations.length) % locations.length];
+				aircraft?.children[0].position.set(...currLoc)
+
+				const locDiff = [
+					nextLoc[0] - prevLoc[0],
+					nextLoc[1] - prevLoc[1],
+					nextLoc[2] - prevLoc[2]
+				]
+				const yaw = Math.atan2(locDiff[2], locDiff[0])
+				const pitch = Math.atan2(locDiff[1], Math.sqrt(locDiff[0] * locDiff[0] + locDiff[2] * locDiff[2]))
+				const q = toQuaternion(pitch, Math.PI - yaw, -Math.PI / 2);
+				aircraft.children[0].setRotationFromQuaternion(q)
 			}
+		}
 
-			function travelLength(locations) {
-				let result = 0;
-				for (let i = 0; i < locations.length; i++) {
-					result += oclidianDistance(locations[i], locations[(i + 1) % locations.length])
-				}
-				return result;
+		function getCurrentTravelPercent() {
+			const totalMillis = travelLength(locations) * 5000;
+			if (Date.now() - animationCycleStart > totalMillis)
+				animationCycleStart = Date.now();
+
+			return (Date.now() - animationCycleStart) / totalMillis;
+		}
+
+		function travelLength(locations) {
+			let result = 0;
+			for (let i = 0; i < locations.length; i++) {
+				result += oclidianDistance(locations[i], locations[(i + 1) % locations.length])
 			}
+			return result;
+		}
 
-			function oclidianDistance([x0, y0, z0], [x1, y1, z1]) {
-				return Math.sqrt(
-					Math.pow(x1 - x0, 2) +
-					Math.pow(y1 - y0, 2) +
-					Math.pow(z1 - z0, 2)
-				)
-			}
+		function oclidianDistance([x0, y0, z0], [x1, y1, z1]) {
+			return Math.sqrt(
+				Math.pow(x1 - x0, 2) +
+				Math.pow(y1 - y0, 2) +
+				Math.pow(z1 - z0, 2)
+			)
+		}
 
-			function toQuaternion(yaw, pitch, roll) {
-				// Abbreviations for the various angular functions
-				const cy = Math.cos(yaw * 0.5);
-				const sy = Math.sin(yaw * 0.5);
-				const cp = Math.cos(pitch * 0.5);
-				const sp = Math.sin(pitch * 0.5);
-				const cr = Math.cos(roll * 0.5);
-				const sr = Math.sin(roll * 0.5);
+		function toQuaternion(yaw, pitch, roll) {
+			// Abbreviations for the various angular functions
+			const cy = Math.cos(yaw * 0.5);
+			const sy = Math.sin(yaw * 0.5);
+			const cp = Math.cos(pitch * 0.5);
+			const sp = Math.sin(pitch * 0.5);
+			const cr = Math.cos(roll * 0.5);
+			const sr = Math.sin(roll * 0.5);
 
-				const q = {};
-				q.w = cr * cp * cy + sr * sp * sy;
-				q.x = sr * cp * cy - cr * sp * sy;
-				q.y = cr * sp * cy + sr * cp * sy;
-				q.z = cr * cp * sy - sr * sp * cy;
+			const q = {};
+			q.w = cr * cp * cy + sr * sp * sy;
+			q.x = sr * cp * cy - cr * sp * sy;
+			q.y = cr * sp * cy + sr * cp * sy;
+			q.z = cr * cp * sy - sr * sp * cy;
 
-				return new THREE.Quaternion(q.x, q.y, q.z, q.w);
-			}
+			return new THREE.Quaternion(q.x, q.y, q.z, q.w);
+		}
 
-		</script>
+	</script>
 </body>
 
 </html>
