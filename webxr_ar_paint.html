@@ -8,25 +8,40 @@
 	<link type="text/css" rel="stylesheet" href="main.css">
 </head>
 
+<<<<<<< HEAD
 <body>
+=======
+<body id="screenshot">
+>>>>>>> origin/feat/screenshot-button
 
 	<div id="info">
 		<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - paint<br />(Chrome Android 81+)
 	</div>
+<<<<<<< HEAD
 	<!-- <button id="reset">reset</button> -->
+=======
+	<div id="ar-overly">
+		<button id="button-action" type="button" >Take Screenshot</button>
+	</div>
+	<div id="output"></div>
+>>>>>>> origin/feat/screenshot-button
 	<script type="module">
 
 		import * as THREE from './node_modules/three/build/three.module.js';
 		import { TubePainter } from './node_modules/three/examples/jsm/misc/TubePainter.js';
 		import { ARButton } from './node_modules/three/examples/jsm/webxr/ARButton.js';
 		import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+<<<<<<< HEAD
 		import { MTLLoader } from './node_modules/three/examples/jsm/loaders/MTLLoader.js';
 		import { OBJLoader } from './node_modules/three/examples/jsm/loaders/OBJLoader.js';
+=======
+>>>>>>> origin/feat/screenshot-button
 
 		let container;
 		let camera, scene, renderer;
 		let controller, painter, aircraft;
 		let animationCycleStart = new Date();
+<<<<<<< HEAD
 		let trails = [];
 
 		const cursor = new THREE.Vector3();
@@ -150,7 +165,142 @@
 			}
 		}
 
+=======
+		const cursor = new THREE.Vector3();
+		const locations = [];
 
+		init();
+		animate();
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			scene = new THREE.Scene();
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+
+			//
+
+			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.xr.enabled = true;
+			container.appendChild(renderer.domElement);
+
+			//
+
+			document.body.appendChild(ARButton.createButton(renderer, {
+				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
+				domOverlay: { root: document.getElementById("ar-overly") }
+			})
+			);
+			document.getElementById("button-action").addEventListener("click", (e) => {
+				const canvas = document.getElementsByTagName('canvas')[0];
+				var base64image = canvas.toDataURL("image/png");
+				window.location.href = base64image;
+			})
+			// model
+
+			const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+			light.position.set(0, 1, 0);
+			scene.add(light);
+
+			//
+
+			painter = new TubePainter();
+			painter.setSize(0.1);
+			painter.mesh.material.side = THREE.DoubleSide;
+			scene.add(painter.mesh);
+
+			//
+
+			function onSelectStart() {
+
+				this.userData.isSelecting = true;
+				this.userData.skipFrames = 2;
+
+			}
+
+			function onSelectEnd() {
+
+				this.userData.isSelecting = false;
+
+			}
+
+			controller = renderer.xr.getController(0);
+			controller.addEventListener('selectstart', onSelectStart);
+			controller.addEventListener('selectend', onSelectEnd);
+			controller.userData.skipFrames = 0;
+			scene.add(controller);
+
+			//
+
+			window.addEventListener('resize', onWindowResize);
+
+			const loader = new GLTFLoader();
+			loader.load('./iaf_spitfire_mk9/scene.gltf', function (gltf) {
+				aircraft = gltf.scene;
+				aircraft.children[0].scale.set(.05, .05, .05);
+				scene.add(aircraft);
+			}, undefined, function (error) {
+				console.error(error);
+			});
+
+			//
+
+			window.addEventListener('resize', onWindowResize);
+
+			//
+
+			if (typeof TESTING !== 'undefined') {
+
+				for (let i = 0; i < 50; i++) {
+
+					simulate(500 - 10 * i);
+
+				}
+>>>>>>> origin/feat/screenshot-button
+
+
+<<<<<<< HEAD
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+		}
+
+		//
+
+		function handleController(controller) {
+
+			const userData = controller.userData;
+
+			cursor.set(0, 0, - 0.2).applyMatrix4(controller.matrixWorld);
+
+			if (userData.isSelecting === true) {
+
+				if (userData.skipFrames >= 0) {
+
+					// TODO(mrdoob) Revisit this
+
+					userData.skipFrames--;
+
+					painter.moveTo(cursor);
+
+				} else {
+
+					painter.lineTo(cursor);
+					locations.push([cursor.x, cursor.y, cursor.z])
+					painter.update();
+
+=======
+
+		}
 
 		function onWindowResize() {
 
@@ -185,11 +335,13 @@
 					locations.push([cursor.x, cursor.y, cursor.z])
 					painter.update();
 
+>>>>>>> origin/feat/screenshot-button
 				}
 
 			}
 
 		}
+<<<<<<< HEAD
 
 		function animate() {
 
@@ -227,6 +379,37 @@
 					trails[i].rotation.z += (0.05 + i / 75);
 					trails[i].rotation.z += (0.05 + i / 75);
 				}
+=======
+
+		function animate() {
+
+			renderer.setAnimationLoop(render);
+
+		}
+
+		function render() {
+
+			handleController(controller);
+			if (aircraft)
+				placeAircraft()
+			renderer.render(scene, camera);
+
+		}
+
+		//// NOAM code
+
+		function placeAircraft() {
+			if (locations.length === 0)
+				aircraft?.children[0].position.set(0, 0, 0)
+			else if (locations.length === 1)
+				aircraft?.children[0].position.set(...locations[0])
+			else {
+				const newLocIdx = Math.floor(getCurrentTravelPercent() * locations.length);
+				const currLoc = locations[newLocIdx],
+					nextLoc = locations[(newLocIdx + 1) % locations.length],
+					prevLoc = locations[(newLocIdx - 1 + locations.length) % locations.length];
+				aircraft?.children[0].position.set(...currLoc)
+>>>>>>> origin/feat/screenshot-button
 
 				const locDiff = [
 					nextLoc[0] - prevLoc[0],
@@ -237,6 +420,7 @@
 				const pitch = Math.atan2(locDiff[1], Math.sqrt(locDiff[0] * locDiff[0] + locDiff[2] * locDiff[2]))
 				const q = toQuaternion(pitch, Math.PI - yaw, -Math.PI / 2);
 				aircraft.children[0].setRotationFromQuaternion(q)
+<<<<<<< HEAD
 			}
 		}
 
@@ -268,6 +452,9 @@
 				);
 			}
 			return result;
+=======
+			}
+>>>>>>> origin/feat/screenshot-button
 		}
 
 		function getCurrentTravelPercent() {
