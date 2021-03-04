@@ -225,17 +225,17 @@
 			} else if (locations.length === 1)
 				aircraft?.position.set(...locations[0])
 			else {
-				const smoothLocations = addMidpoints(smooth(smooth(locations)), 4);
-				const newLocIdx = Math.floor(getCurrentTravelPercent() * smoothLocations.length);
-				const currLoc = smoothLocations[newLocIdx],
-					nextLoc = smoothLocations[Math.min(newLocIdx + 4, smoothLocations.length - 1)],
-					nextNextLoc = smoothLocations[Math.min(newLocIdx + 8, smoothLocations.length - 1)],
-					prevLoc = smoothLocations[Math.max(newLocIdx - 4, 0)];
+				const smoothLocations = smooth(addMidpoints(locations, 2));
+				const currentTravelPercent = getCurrentTravelPercent();
+				//document.getElementById("button-reset").innerHTML = (currentTravelPercent*100).toFixed(2);
+				const currLoc = currentLocationByPercent(smoothLocations, currentTravelPercent),
+					nextLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.02),
+					nextNextLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.04),
+					prevLoc = currentLocationByPercent(smoothLocations, currentTravelPercent - 0.02);
 
 				aircraft?.position.set(...currLoc)
 				for (let i = 0; i < trails.length; i++) {
-					const newTrailLocIdx = Math.floor(((getCurrentTravelPercent() + 0.98 - (i / 50)) % 1) * locations.length);
-					const currTrailLoc = locations[newTrailLocIdx];
+					const currTrailLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.98 - (i / 50));
 					trails[i].position.set(...currTrailLoc);
 					trails[i].rotation.x += (0.05 + i / 75);
 					trails[i].rotation.z += (0.05 + i / 75);
@@ -256,8 +256,8 @@
 				const nextYaw = Math.atan2(nextLocDiff[2], nextLocDiff[0])
 				const pitch = Math.atan2(locDiff[1], Math.sqrt(locDiff[0] * locDiff[0] + locDiff[2] * locDiff[2]))
 				const roll = 0;//(nextYaw - yaw) * 0.1;
-				document.getElementById("button-reset").innerHTML = (roll / Math.PI * 180).toFixed(2);
-				const q = toQuaternion(Math.PI - yaw, pitch, roll);
+				//document.getElementById("button-reset").innerHTML = (yaw / Math.PI * 180).toFixed(2);
+				const q = toQuaternion(Math.PI - yaw, 0, 0);
 				aircraft.setRotationFromQuaternion(q)
 			}
 		}
@@ -294,8 +294,31 @@
 			return result;
 		}
 
+		function currentLocationByPercent(locations, percent) {
+			if(percent > 1) return currentLocationByPercent(locations, percent % 1)
+			if(percent < 0) return currentLocationByPercent(locations, (percent + 100) % 1)
+			
+			let before = locations[0], after = locations[0], result=0, prevresult=0;
+			const shouldTravel = percent * getCurrentTravelPercent();
+			for (let i = 0; i < locations.length; i++) {
+				result += oclidianDistance(locations[i], locations[(i + 1) % locations.length])
+				if(result > shouldTravel)
+					break;
+				before = locations[i];
+				after = locations[(i+1) % locations.length];
+				prevresult = result;
+			}
+
+			const percentBetweenbeforeAndAfterPoints = (shouldTravel - prevresult) / (result - prevresult)
+			return [
+				percentBetweenbeforeAndAfterPoints * after[0] + (1 - percentBetweenbeforeAndAfterPoints) * before[0],
+				percentBetweenbeforeAndAfterPoints * after[1] + (1 - percentBetweenbeforeAndAfterPoints) * before[1],
+				percentBetweenbeforeAndAfterPoints * after[2] + (1 - percentBetweenbeforeAndAfterPoints) * before[2]
+			];
+		}
+
 		function getCurrentTravelPercent() {
-			const totalMillis = travelLength(locations) * 5000;
+			const totalMillis = travelLength(locations) * 70000;
 			if (Date.now() - animationCycleStart > totalMillis)
 				animationCycleStart = Date.now();
 
@@ -334,6 +357,12 @@
 			q.z = cr * cp * sy - sr * sp * cy;
 
 			return new THREE.Quaternion(q.x, q.z, q.z, q.w);
+		}
+
+		window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+			alert("Error occured: " + JSON.stringify({errorMsg, url, lineNumber}));//or any message
+			alert("toError:", window.toError)
+			return false;
 		}
 
 	</script>
