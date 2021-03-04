@@ -63,6 +63,8 @@
 			const data = snapshot.val();
 			if(data)
 				locations = data
+			else
+				locations = []
 		});
 
 
@@ -121,7 +123,7 @@
 		}
 
 		function resetScene() {
-			locations = [[0,0,0]];
+			locations = [];
 			scene.remove(painter.mesh);
 			loadPainter();
 		}
