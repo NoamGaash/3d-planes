@@ -66,8 +66,8 @@
 			loadLight();
 			loadPainter();
 			loadController();
-			// loadAircraft1();
-			loadAircraft("f15");
+			loadAircraftGTLF("aero");
+			// loadAircraftOBJ("rafael");
 			loadTrails();
 
 			window.addEventListener('resize', onWindowResize);
@@ -84,8 +84,8 @@
 			scene.remove(painter.mesh);
 			loadPainter();
 			scene.remove(aircraft);
-			// loadAircraft("f2");
-			loadAircraft1();
+			loadAircraftGTLF("aero");
+			// loadAircraftOBJ("rafael");
 		}
 
 		function loadLight() {
@@ -123,11 +123,11 @@
 			scene.add(painter.mesh);
 		}
 
-		function loadAircraft1() {
+		function loadAircraftGTLF(aircraftName) {
 			new GLTFLoader()
-				.load('./3d_models/aero/L-159.gltf', function (gltf) {
+				.load('./3d_models/aircrafts/gltf/'+aircraftName+'/object.gltf', function (gltf) {
 					aircraft = gltf.scene;
-					const num = 0.003;
+					const num = 0.006;
 					aircraft.scale.set(num, num, num);
 					scene.add(aircraft);
 
@@ -136,17 +136,17 @@
 				});
 		}
 
-		function loadAircraft(aircraftName) {
+		function loadAircraftOBJ(aircraftName) {
 			new MTLLoader()
-				.setPath('./3d_models/'+aircraftName+'/')
+				.setPath('./3d_models/aircrafts/obj/'+aircraftName+'/')
 				.load('material.mtl', function (materials) {
 					materials.preload();
 					new OBJLoader()
 						.setMaterials(materials)
-						.setPath('./3d_models/'+aircraftName+'/')
+						.setPath('./3d_models/aircrafts/obj/'+aircraftName+'/')
 						.load('object.obj', function (object) {
 							aircraft = object;
-							const num = 0.003;
+							const num = 0.06;
 							aircraft.scale.set(num, num, num);
 							scene.add(aircraft);
 						}, undefined, function (error) {
@@ -158,12 +158,12 @@
 		function loadTrails() {
 			for (let i = 0; i < 9; i++) {
 				new MTLLoader()
-					.setPath('./3d_models/sod/lightblue/')
+					.setPath('./3d_models/trails/sod/lightblue/')
 					.load('Project Name.mtl', function (materials) {
 						materials.preload();
 						new OBJLoader()
 							.setMaterials(materials)
-							.setPath('./3d_models/sod/lightblue/')
+							.setPath('./3d_models/trails/sod/lightblue/')
 							.load('Project Name.obj', function (object) {
 								const trail = object;
 								const num = ((1 - (i / 10)) % 1) / 10000
