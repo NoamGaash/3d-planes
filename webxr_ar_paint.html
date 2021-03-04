@@ -10,8 +10,13 @@
 
 <body>
 	<div id="ar-overly">
-		<button id="button-action" class="tool-button" type="button">screenshot</button><button id="button-reset"
-			class="tool-button" type="button">reset</button>
+		<button id="button-action" class="tool-button" type="button">screenshot</button>
+		<button id="button-reset" class="tool-button" type="button">reset</button>
+		<div id="aircrafts_menu">
+			<!-- <button id="aero" class="aircraft-option" type="button">f-15</button>
+			<button id="mk9" class="aircraft-option selecte" type="button">f-35</button>
+			<button id="rafael" class="aircraft-option" type="button">f-16</button> -->
+		</div>
 	</div>
 	<script type="module">
 
@@ -21,7 +26,7 @@
 		import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 		import { MTLLoader } from './node_modules/three/examples/jsm/loaders/MTLLoader.js';
 		import { OBJLoader } from './node_modules/three/examples/jsm/loaders/OBJLoader.js';
-		import {OrbitControls} from "./node_modules/three/examples/jsm/controls/OrbitControls.js";
+		import { OrbitControls } from "./node_modules/three/examples/jsm/controls/OrbitControls.js";
 
 		let container;
 		let camera, controls, scene, renderer;
@@ -30,11 +35,32 @@
 		let trails = [];
 		let locations = [];
 		const cursor = new THREE.Vector3();
+		let selectedAircraft = "aero";
+
+		const AIRCRAFTS_META_DATA = [
+			{ id: "aero", type: "gltf", scale: 0.003, text: "f->?" },
+			{ id: "mk9", type: "gltf", scale: 0.01, text: "f-5" },
+			{ id: "rafael", type: "gltf", scale: 0.003, text: "f-99" },
+			{ id: "f15", type: "obj", scale: 0.003, text: "f-15" }
+		]
 
 		init();
 		animate();
 
 		function init() {
+
+			AIRCRAFTS_META_DATA.forEach(aircraft => {
+				const elem = document.createElement('button');
+				elem.classList.add("aircraft-option");
+				elem.type = "button";
+				elem.id = aircraft.id;
+				elem.innerText = aircraft.text;
+				document.getElementById('aircrafts_menu').appendChild(elem);
+				elem.addEventListener('click', () => {
+					changeAircraft(aircraft);
+				})
+			})
+
 
 			container = document.createElement('div');
 			document.body.appendChild(container);
@@ -45,7 +71,7 @@
 
 			scene = new THREE.Scene();
 			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-			camera.position.set( .1, .03, 0 );
+			camera.position.set(.1, .03, 0);
 
 			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 			renderer.setPixelRatio(window.devicePixelRatio);
@@ -53,8 +79,8 @@
 			renderer.xr.enabled = true;
 
 			// controls
-			controls = new OrbitControls( camera, renderer.domElement );
-			controls.listenToKeyEvents( window ); // optional
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.listenToKeyEvents(window); // optional
 
 			container.appendChild(renderer.domElement);
 
@@ -71,14 +97,18 @@
 				resetScene();
 			})
 
+
 			loadLight();
 			loadPainter();
 			loadController();
-			loadAircraftGTLF("aero");
-			// loadAircraftOBJ("rafael");
 			loadTrails();
 
 			window.addEventListener('resize', onWindowResize);
+		}
+
+		function changeAircraft(selectedAircraft) {
+			scene.remove(aircraft);
+			loadAircraft(selectedAircraft);
 		}
 
 		function takeScreenshot() {
@@ -128,31 +158,38 @@
 			scene.add(painter.mesh);
 		}
 
-		function loadAircraftGTLF(aircraftName) {
-			new GLTFLoader()
-				.load('./3d_models/aircrafts/gltf/'+aircraftName+'/object.gltf', function (gltf) {
-					aircraft = gltf.scene;
-					const num = 0.006;
-					aircraft.scale.set(num, num, num);
-					scene.add(aircraft);
+		function loadAircraft(selectedAircraft) {
+			if (selectedAircraft.type == "gltf") {
+				loadAircraftGLTF(selectedAircraft);
+			} else if (selectedAircraft.type == "obj") {
+				loadAircraftOBJ(selectedAircraft);
+			}
+		}
 
+		function loadAircraftGLTF(selectedAircraft) {
+			new GLTFLoader()
+				.load('./3d_models/aircrafts/gltf/' + selectedAircraft.id + '/object.gltf', function (gltf) {
+					aircraft = gltf.scene;
+					const scale = selectedAircraft.scale;
+					aircraft.scale.set(scale, scale, scale);
+					scene.add(aircraft);
 				}, undefined, function (error) {
 					console.error(error);
 				});
 		}
 
-		function loadAircraftOBJ(aircraftName) {
+		function loadAircraftOBJ(selectedAircraft) {
 			new MTLLoader()
-				.setPath('./3d_models/aircrafts/obj/'+aircraftName+'/')
+				.setPath('./3d_models/aircrafts/obj/' + selectedAircraft.id + '/')
 				.load('material.mtl', function (materials) {
 					materials.preload();
 					new OBJLoader()
 						.setMaterials(materials)
-						.setPath('./3d_models/aircrafts/obj/'+aircraftName+'/')
+						.setPath('./3d_models/aircrafts/obj/' + selectedAircraft.id + '/')
 						.load('object.obj', function (object) {
 							aircraft = object;
-							const num = 0.06;
-							aircraft.scale.set(num, num, num);
+							const scale = selectedAircraft.scale;
+							aircraft.scale.set(scale, scale, scale);
 							scene.add(aircraft);
 						}, undefined, function (error) {
 							console.error(error);
@@ -256,7 +293,7 @@
 				const nextYaw = Math.atan2(nextLocDiff[2], nextLocDiff[0])
 				const pitch = Math.atan2(locDiff[1], Math.sqrt(locDiff[0] * locDiff[0] + locDiff[2] * locDiff[2]))
 				const roll = 0;//(nextYaw - yaw) * 0.1;
-				document.getElementById("button-reset").innerHTML = (roll / Math.PI * 180).toFixed(2);
+				// document.getElementById("button-reset").innerHTML = (roll / Math.PI * 180).toFixed(2);
 				const q = toQuaternion(Math.PI - yaw, pitch, roll);
 				aircraft.setRotationFromQuaternion(q)
 			}
