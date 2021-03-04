@@ -39,9 +39,9 @@
 
 		const AIRCRAFTS_META_DATA = [
 			{ id: "aero", type: "gltf", scale: 0.003, text: "f->?" },
-			{ id: "mk9", type: "gltf", scale: 0.01, text: "f-5" },
+			{ id: "mk9", type: "gltf", scale: 0.02, text: "f-5" },
 			{ id: "rafael", type: "gltf", scale: 0.003, text: "f-99" },
-			{ id: "f15", type: "obj", scale: 0.003, text: "f-15" }
+			{ id: "f15", type: "obj", scale: 0.006, text: "f-15" }
 		]
 
 		init();
@@ -97,7 +97,7 @@
 				resetScene();
 			})
 
-
+			changeAircraft(AIRCRAFTS_META_DATA[3])
 			loadLight();
 			loadPainter();
 			loadController();
@@ -107,6 +107,8 @@
 		}
 
 		function changeAircraft(selectedAircraft) {
+			AIRCRAFTS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
+			document.getElementById(selectedAircraft.id).classList.add("selected");
 			scene.remove(aircraft);
 			loadAircraft(selectedAircraft);
 		}
