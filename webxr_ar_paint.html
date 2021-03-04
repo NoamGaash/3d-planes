@@ -10,7 +10,8 @@
 
 <body>
 	<div id="ar-overly">
-		<button id="button-action" class="tool-button" type="button">screenshot</button><button id="button-reset" class="tool-button" type="button">reset</button>
+		<button id="button-action" class="tool-button" type="button">screenshot</button><button id="button-reset"
+			class="tool-button" type="button">reset</button>
 	</div>
 	<script type="module">
 
@@ -65,7 +66,8 @@
 			loadLight();
 			loadPainter();
 			loadController();
-			loadAircraft();
+			loadAircraftGTLF("aero");
+			// loadAircraftOBJ("rafael");
 			loadTrails();
 
 			window.addEventListener('resize', onWindowResize);
@@ -81,6 +83,9 @@
 			locations = [];
 			scene.remove(painter.mesh);
 			loadPainter();
+			scene.remove(aircraft);
+			loadAircraftGTLF("aero");
+			// loadAircraftOBJ("rafael");
 		}
 
 		function loadLight() {
@@ -118,11 +123,12 @@
 			scene.add(painter.mesh);
 		}
 
-		function loadAircraft() {
+		function loadAircraftGTLF(aircraftName) {
 			new GLTFLoader()
-				.load('./iaf_spitfire_mk9/scene.gltf', function (gltf) {
+				.load('./3d_models/aircrafts/gltf/'+aircraftName+'/object.gltf', function (gltf) {
 					aircraft = gltf.scene;
-					aircraft.children[0].scale.set(.05, .05, .05);
+					const num = 0.006;
+					aircraft.scale.set(num, num, num);
 					scene.add(aircraft);
 
 				}, undefined, function (error) {
@@ -130,15 +136,34 @@
 				});
 		}
 
+		function loadAircraftOBJ(aircraftName) {
+			new MTLLoader()
+				.setPath('./3d_models/aircrafts/obj/'+aircraftName+'/')
+				.load('material.mtl', function (materials) {
+					materials.preload();
+					new OBJLoader()
+						.setMaterials(materials)
+						.setPath('./3d_models/aircrafts/obj/'+aircraftName+'/')
+						.load('object.obj', function (object) {
+							aircraft = object;
+							const num = 0.06;
+							aircraft.scale.set(num, num, num);
+							scene.add(aircraft);
+						}, undefined, function (error) {
+							console.error(error);
+						});
+				});
+		}
+
 		function loadTrails() {
 			for (let i = 0; i < 9; i++) {
 				new MTLLoader()
-					.setPath('./3d_models/sod/lightblue/')
+					.setPath('./3d_models/trails/sod/lightblue/')
 					.load('Project Name.mtl', function (materials) {
 						materials.preload();
 						new OBJLoader()
 							.setMaterials(materials)
-							.setPath('./3d_models/sod/lightblue/')
+							.setPath('./3d_models/trails/sod/lightblue/')
 							.load('Project Name.obj', function (object) {
 								const trail = object;
 								const num = ((1 - (i / 10)) % 1) / 10000
@@ -188,20 +213,21 @@
 
 		function placeAircraft() {
 			if (locations.length === 0) {
-				aircraft?.children[0].position.set(0, 0, 0)
-				aircraft?.children[0].rotation.set(-Math.PI / 2, 0, 0)
+				aircraft?.position.set(0, 0, 0)
+				aircraft?.rotation.set(0, 0, 0)
 				trails.forEach(trail => trail.position.set(NaN, 0, 0))
-				trails.forEach(trail => trail.rotation.set(0,0,0))
+				trails.forEach(trail => trail.rotation.set(0, 0, 0))
 			} else if (locations.length === 1)
-				aircraft?.children[0].position.set(...locations[0])
+				aircraft?.position.set(...locations[0])
 			else {
-				const smoothLocations = addMidpoints(smooth(locations), 4);
+				const smoothLocations = addMidpoints(smooth(smooth(locations)), 4);
 				const newLocIdx = Math.floor(getCurrentTravelPercent() * smoothLocations.length);
 				const currLoc = smoothLocations[newLocIdx],
-					nextLoc = smoothLocations[Math.min(newLocIdx + 4, smoothLocations.length-1)],
+					nextLoc = smoothLocations[Math.min(newLocIdx + 4, smoothLocations.length - 1)],
+					nextNextLoc = smoothLocations[Math.min(newLocIdx + 8, smoothLocations.length - 1)],
 					prevLoc = smoothLocations[Math.max(newLocIdx - 4, 0)];
 
-				aircraft?.children[0].position.set(...currLoc)
+				aircraft?.position.set(...currLoc)
 				for (let i = 0; i < trails.length; i++) {
 					const newTrailLocIdx = Math.floor(((getCurrentTravelPercent() + 0.98 - (i / 50)) % 1) * locations.length);
 					const currTrailLoc = locations[newTrailLocIdx];
@@ -215,10 +241,19 @@
 					nextLoc[1] - prevLoc[1],
 					nextLoc[2] - prevLoc[2]
 				]
+				const nextLocDiff = [
+					nextNextLoc[0] - nextLoc[0],
+					nextNextLoc[1] - nextLoc[1],
+					nextNextLoc[2] - nextLoc[2]
+				]
+
 				const yaw = Math.atan2(locDiff[2], locDiff[0])
+				const nextYaw = Math.atan2(nextLocDiff[2], nextLocDiff[0])
 				const pitch = Math.atan2(locDiff[1], Math.sqrt(locDiff[0] * locDiff[0] + locDiff[2] * locDiff[2]))
-				const q = toQuaternion(pitch, Math.PI - yaw, -Math.PI / 2);
-				aircraft.children[0].setRotationFromQuaternion(q)
+				const roll = 0;//(nextYaw - yaw) * 0.1;
+				document.getElementById("button-reset").innerHTML = (roll / Math.PI * 180).toFixed(2);
+				const q = toQuaternion(Math.PI - yaw, pitch, roll);
+				aircraft.setRotationFromQuaternion(q)
 			}
 		}
 
@@ -249,7 +284,7 @@
 					locations[i]
 				);
 			}
-			if(iterations > 1) 
+			if (iterations > 1)
 				return addMidpoints(locations, iterations - 1)
 			return result;
 		}
@@ -293,7 +328,7 @@
 			q.y = cr * sp * cy + sr * cp * sy;
 			q.z = cr * cp * sy - sr * sp * cy;
 
-			return new THREE.Quaternion(q.x, q.z, q.y, q.w);
+			return new THREE.Quaternion(q.x, q.z, q.z, q.w);
 		}
 
 	</script>
