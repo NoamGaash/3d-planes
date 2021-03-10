@@ -113,9 +113,22 @@ select {
   margin: 10px;
 }
 
-#aircrafts_menu {
+#menus {
   position: absolute;
   bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#trails_menu {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+#aircrafts_menu {
   width: 100%;
   display: flex;
   justify-content: center;
