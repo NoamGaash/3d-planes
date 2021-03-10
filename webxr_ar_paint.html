@@ -9,7 +9,6 @@
 </head>
 
 <body>
-	<button id="startbutton">Take photo</button>
 	<div id="camrea">
 		<div class="camera">
 			<video id="video">Video stream not available.</video>
@@ -93,7 +92,7 @@
 			[1, 0],
 		]
 		locations = locations.map(([x,y]) => [-0.1, y/10-0.1, -x/10])
-		locations = addMidpoints(locations, 14)
+		locations = addMidpoints(locations, 20)
 
 		let selectedAircraft = "aero";
 
@@ -113,13 +112,13 @@
 			if(data)
 				for (let location of data)
 					if(locations.indexOf(location) === -1){
-						/*painter.lineTo({
+						painter.lineTo({
 							x: location[0],
 							y: location[1],
 							z: location[2]
 						})
 						locations.push(location)
-						painter.update()*/
+						painter.update()
 					}
 			else
 				locations = []
@@ -169,9 +168,6 @@
 			var streaming = false;
 
 			var video = null;
-			var canvas = null;
-			var photo = null;
-			var startbutton = null;
 
 			function startup() {
 				video = document.getElementById('video');
