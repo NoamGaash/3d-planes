@@ -48,8 +48,10 @@
 
 <body>
 	<div id="ar-overly">
-		<button id="button-action" class="tool-button" type="button">screenshot</button>
-		<button id="button-reset" class="tool-button" type="button">reset</button>
+		<div id="controls">
+			<button id="button-action" class="tool-button" type="button">screenshot</button>
+			<button id="button-reset" class="tool-button" type="button">reset</button>
+		</div>
 		<div id="aircrafts_menu">
 			<!-- <button id="aero" class="aircraft-option" type="button">f-15</button>
 			<button id="mk9" class="aircraft-option selecte" type="button">f-35</button>
@@ -73,7 +75,7 @@
 		let animationCycleStart = new Date();
 		let trails = [];
 		const cursor = new THREE.Vector3();
-		const locations = [
+		let locations = [
 			[0,0,0],
 			[0,0,-1]
 		];

@@ -194,13 +194,16 @@ select {
 	width: 760px;
   }
 
-#camrea {
-	z-index: -1;
+canvas{
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
+}
+#camrea {
+  z-index: -1;
+  position: relative;
 }
 #canvas {
 	display: none;
@@ -236,4 +239,19 @@ select {
   width: 90px;
   background-color: #ffffff;
   opacity: 0.6;
+}
+
+#controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#aircrafts_menu {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
 }
