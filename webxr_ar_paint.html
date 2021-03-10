@@ -205,14 +205,43 @@
 			loadAircraft(selectedAircraft);
 		}
 
+
+		function createVidBackgrounds(){
+			const canvas = document.createElement('canvas')
+			let ctx = canvas.getContext('2d');
+			let videos = document.querySelectorAll('video')
+			let w, h
+			for (let i = 0, len = videos.length; i < len; i++) {
+				const v = videos[i]
+				//debugger
+				//if (!v.src) continue // no video here
+				try {
+					w = v.videoWidth
+					h = v.videoHeight
+					canvas.width = w
+					canvas.height = h
+					ctx.fillRect(0, 0, w, h)
+					ctx.drawImage(v, 0, 0, w, h)
+					v.style.backgroundImage = `url(${canvas.toDataURL()})` // here is the magic
+					v.style.backgroundSize = 'cover' 
+					ctx.clearRect(0, 0, w, h); // clean the canvas
+				} catch (e) {
+					continue
+				}
+			}
+		}
+
 		function takeScreenshot() {
 			const canvas = document.getElementsByTagName('canvas')[0];
-			var base64image = canvas.toDataURL("image/png");
-			var iframe = "<img src='" + base64image + "'>"
-			var x = window.open();
-			x.document.open();
-			document.write(iframe);
-			x.document.close();
+			createVidBackgrounds()
+			html2canvas(document.querySelector("body")).then(canvas => {
+				var base64image = canvas.toDataURL("image/png");
+				var iframe = "<img src='" + base64image + "'>"
+				var x = window.open();
+				x.document.open();
+				x.document.write(iframe);
+				x.document.close();
+			});
 		}
 
 		function resetScene() {
