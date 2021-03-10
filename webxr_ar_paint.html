@@ -11,6 +11,9 @@
 <body>
 	<div id="ar-overly">
 		<button id="button-action" class="tool-button" type="button">screenshot</button><button id="button-reset" class="tool-button" type="button">reset</button>
+		<div class="USDZ-container">
+			<a rel="ar" href="https://developer.apple.com/augmented-reality/quick-look/models/biplane/toy_biplane.usdz"><img class="image-model" src="https://developer.apple.com/augmented-reality/quick-look/models/biplane/biplane_2x.jpg" alt="" data-hires-status="replaced"></a>
+		</div>
 	</div>
 	<script type="module">
 
@@ -296,6 +299,24 @@
 			return new THREE.Quaternion(q.x, q.z, q.y, q.w);
 		}
 
+	</script>
+
+	<script>
+		function isIOS() {
+			return [
+				'iPad Simulator',
+				'iPhone Simulator',
+				'iPod Simulator',
+				'iPad',
+				'iPhone',
+				'iPod'
+			].includes(navigator.platform)
+			|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+		}
+
+		if (isIOS()) {
+			document.getElementsByClassName('USDZ-container')[0].innerHTML = "USDZ not supported 😢"
+		}
 	</script>
 </body>
 
