@@ -314,7 +314,7 @@
 			|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 		}
 
-		if (isIOS()) {
+		if (!isIOS()) {
 			document.getElementsByClassName('USDZ-container')[0].innerHTML = "USDZ not supported 😢"
 		}
 	</script>
