@@ -14,13 +14,7 @@
 		<div class="camera">
 			<video id="video">Video stream not available.</video>
 		</div>
-		<canvas id="canvas">
-		</canvas>
 	</div>
-	<!-- <div id="ar-overly">
-		<button id="screenshot-button" type="button">Take Screenshot</button>
-		<button id="share_fb" type="button">SHARE ON FACEBOOK</button>
-	</div> -->
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-database.js"></script>
@@ -53,9 +47,6 @@
 			<button id="button-reset" class="tool-button" type="button">reset</button>
 		</div>
 		<div id="aircrafts_menu">
-			<!-- <button id="aero" class="aircraft-option" type="button">f-15</button>
-			<button id="mk9" class="aircraft-option selecte" type="button">f-35</button>
-			<button id="rafael" class="aircraft-option" type="button">f-16</button> -->
 		</div>
 	</div>
 	<script type="module">
@@ -116,12 +107,6 @@
 			})
 
 
-			container = document.createElement('div');
-			document.body.appendChild(container);
-			document.body.appendChild(ARButton.createButton(renderer, {
-				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
-				domOverlay: { root: document.body }
-			}));
 
 			scene = new THREE.Scene();
 			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
@@ -136,20 +121,14 @@
 			controls = new OrbitControls(camera, renderer.domElement);
 			controls.listenToKeyEvents(window); // optional
 
+			container = document.createElement('div');
+			document.body.appendChild(container);
 			container.appendChild(renderer.domElement);
 
 			document.body.appendChild(ARButton.createButton(renderer, {
 				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
-				domOverlay: { root: document.getElementById("camrea") }
-			})
-			);
-			//
-
-			document.getElementById('startbutton').addEventListener('click', function (ev) {
-				takepicture();
-				ev.preventDefault();
-			}, false);
-
+				domOverlay: { root: document.getElementById("ar-overly") }
+			}));
 
 			window.addEventListener('load', startup, false);
 			var width = 320;
@@ -163,9 +142,6 @@
 
 			function startup() {
 				video = document.getElementById('video');
-				canvas = document.getElementsByTagName('canvas')[0];
-				photo = document.getElementById('photo');
-
 				navigator.mediaDevices.getUserMedia({ video: true, audio: false })
 					.then(function (stream) {
 						video.srcObject = stream;
@@ -184,37 +160,13 @@
 						
 						video.setAttribute('width', width);
 						video.setAttribute('height', height);
-						canvas.setAttribute('width', width);
-						canvas.setAttribute('height', height);
 						streaming = true;
 					}
 				},false);
 
-				// clearphoto();
 			}
 
-			function clearphoto() {
-				var context = canvas.getContext('2d');
-				context.fillStyle = "#AAA";
-				context.fillRect(0, 0, canvas.width, canvas.height);
 
-				var data = canvas.toDataURL('image/png');
-				photo.setAttribute('src', data);
-			}
-
-			function takepicture() {
-
-				var context = canvas.getContext('2d');
-				if (width && height) {
-					canvas.width = width;
-					canvas.height = height;
-					context.drawImage(video, 0, 0, width, height);
-					var data = canvas.toDataURL('image/png');
-					photo.setAttribute('src', data);
-				} else {
-					clearphoto();
-				}
-			}
 
 			// Set up our event listener to run the startup process
 			// once loading is complete.
@@ -256,7 +208,11 @@
 		function takeScreenshot() {
 			const canvas = document.getElementsByTagName('canvas')[0];
 			var base64image = canvas.toDataURL("image/png");
-			window.location.href = base64image;
+			var iframe = "<img src='" + base64image + "'>"
+			var x = window.open();
+			x.document.open();
+			document.write(iframe);
+			x.document.close();
 		}
 
 		function resetScene() {
