@@ -35,8 +35,9 @@
 	<div id="ar-overly">
 		<button id="button-action" class="tool-button" type="button">screenshot</button>
 		<button id="button-reset" class="tool-button" type="button">reset</button>
+		<button id="button-aircraft" class="tool-button" type="button">aircraft</button>
 		<div id="menus">
-			<div id="aircrafts_menu"></div>
+			<div id="aircrafts_menu" class="closed"></div>
 			<div id="trails_menu"></div>
 		</div>
 	</div>
@@ -58,6 +59,7 @@
 		let locations = [];
 		const cursor = new THREE.Vector3();
 		let selectedAircraft = "aero";
+		let isAircraftsMenuOpen = false;
 
 		const AIRCRAFTS_META_DATA = [
 			{ id: "aero", type: "gltf", scale: 0.003, text: "f->?" },
@@ -76,14 +78,15 @@
 		init();
 		animate();
 
-		var pathRef = firebase.database().ref('path');
-		pathRef.on('value', (snapshot) => {
-			const data = snapshot.val();
-			if (data)
-				locations = data
-			else
-				locations = []
-		});
+		locations = [];
+		// var pathRef = firebase.database().ref('path');
+		// pathRef.on('value', (snapshot) => {
+		// 	const data = snapshot.val();
+		// 	if (data)
+		// 		locations = data
+		// 	else
+		// 		locations = []
+		// });
 
 		function init() {
 
@@ -107,16 +110,12 @@
 				elem.innerText = aircraft.text;
 				document.getElementById('trails_menu').appendChild(elem);
 				elem.addEventListener('click', () => {
-					changeAircraft(aircraft);
+					changeTrails(aircraft);
 				})
 			})
 
 			container = document.createElement('div');
 			document.body.appendChild(container);
-			document.body.appendChild(ARButton.createButton(renderer, {
-				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
-				domOverlay: { root: document.body }
-			}));
 
 			scene = new THREE.Scene();
 			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
@@ -146,11 +145,21 @@
 				resetScene();
 			})
 
-			changeAircraft(AIRCRAFTS_META_DATA[3])
+			document.getElementById("button-aircraft").addEventListener("click", (e) => {
+				if(isAircraftsMenuOpen) {
+					document.getElementById('aircrafts_menu').classList.add("closed");
+					isAircraftsMenuOpen = !isAircraftsMenuOpen;
+				} else {
+					document.getElementById('aircrafts_menu').classList.remove("closed");
+					isAircraftsMenuOpen = !isAircraftsMenuOpen;
+				}
+			})
+
+			changeAircraft(AIRCRAFTS_META_DATA[3]);
 			loadLight();
 			loadPainter();
 			loadController();
-			loadTrails(TRAILS_META_DATA[3]);
+			changeTrails(TRAILS_META_DATA[3]);
 
 			window.addEventListener('resize', onWindowResize);
 		}
@@ -197,16 +206,16 @@
 
 		function loadTrails(selectedTrails) {
 			if (selectedTrails.type == "gltf") {
-				loadTrailsGTLF(selectedTrails);
+				loadTrailsGLTF(selectedTrails);
 			} else if (selectedTrails.type == "obj") {
 				loadTrailsOBJ(selectedTrails);
 			}
 		}
 
-		function loadTrailsGTLF(selectedTrails) {
+		function loadTrailsGLTF(selectedTrails) {
 			for (let i = 0; i < 9; i++) {
 				new GLTFLoader()
-					.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.gltf', function (gltf) {
+					.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.glb', function (gltf) {
 						const trail = gltf.scene;
 						const num = ((1 - (i / 10)) % 1) / 10000
 						trail.scale.set(num, num, num);
@@ -251,6 +260,8 @@
 			TRAILS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
 			document.getElementById(selectedTrails.id).classList.add("selected");
 			scene.remove(trails);
+			trails.forEach(trail => {scene.remove(trail)});
+			trails = [];
 			loadTrails(selectedTrails);
 		}
 
