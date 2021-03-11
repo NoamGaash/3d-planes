@@ -50,8 +50,12 @@
 			<div id="aircrafts_menu" class="closed"></div>
 			<div id="trails_menu"></div>
 		</div>
-	</div>
-	<script type="module">
+    <div class="USDZ-container">
+        <a rel="ar" href="https://developer.apple.com/augmented-reality/quick-look/models/biplane/toy_biplane.usdz"><img class="image-model" src="https://developer.apple.com/augmented-reality/quick-look/models/biplane/biplane_2x.jpg" alt="" data-hires-status="replaced"></a>
+    </div>
+  </div>
+	
+  <script type="module">
 
 		import * as THREE from './node_modules/three/build/three.module.js';
 		import { TubePainter } from './node_modules/three/examples/jsm/misc/TubePainter.js';
@@ -587,6 +591,24 @@
 			return false;
 		}
 
+	</script>
+
+	<script>
+		function isIOS() {
+			return [
+				'iPad Simulator',
+				'iPhone Simulator',
+				'iPod Simulator',
+				'iPad',
+				'iPhone',
+				'iPod'
+			].includes(navigator.platform)
+			|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+		}
+
+		if (!isIOS()) {
+			document.getElementsByClassName('USDZ-container')[0].innerHTML = "USDZ not supported 😢"
+		}
 	</script>
 </body>
 

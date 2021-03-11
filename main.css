@@ -303,3 +303,9 @@ canvas{
   right: 0;
   z-index: 1;
 }
+
+/* USDZ */
+.image-model {
+  width: 200px;
+  border-radius: 10px;
+}
