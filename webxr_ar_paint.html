@@ -312,11 +312,13 @@
 			function onSelectStart() {
 				this.userData.isSelecting = true;
 				this.userData.skipFrames = 2;
+				document.body.classList.add('is-selecting')
 			}
 
 			function onSelectEnd() {
 				this.userData.isSelecting = false;
 				firebase.database().ref('path').set(locations);
+				document.body.classList.remove('is-selecting')
 			}
 			controller = renderer.xr.getController(0);
 			controller.addEventListener('selectstart', onSelectStart);
