@@ -327,7 +327,7 @@
 			painter.mesh.material.transparent = true;
 			painter.mesh.material.opacity = 0.3;
 			painter.mesh.material.side = THREE.DoubleSide;
-			painter.moveTo(locations[0])
+			painter.moveTo(locations[0] || [0, 0, 0])
 			for (let location of locations)
 				painter.lineTo({
 					x: location[0],
