@@ -87,6 +87,11 @@ select {
   padding: 12px 18px;
   text-transform: uppercase;
   cursor: pointer;
+  transition: all 1s;
+}
+
+.is-selecting #ar-overly button {
+  opacity: 0;
 }
 
 #ARButton {

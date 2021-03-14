@@ -251,11 +251,13 @@
 			function onSelectStart() {
 				this.userData.isSelecting = true;
 				this.userData.skipFrames = 2;
+				document.body.classList.add('is-selecting')
 			}
 
 			function onSelectEnd() {
 				this.userData.isSelecting = false;
 				firebase.database().ref('path').set(locations);
+				document.body.classList.remove('is-selecting')
 			}
 			controller = renderer.xr.getController(0);
 			controller.addEventListener('selectstart', onSelectStart);
@@ -401,7 +403,7 @@
 
 		function handleController(controller) {
 			const userData = controller.userData;
-			cursor.set(0, 0, - 0.2).applyMatrix4(controller.matrixWorld);
+			cursor.set(0, 0, - 0.2).applyMatrix4(camera.matrixWorld);
 			if (userData.isSelecting === true) {
 				if (userData.skipFrames >= 0) {
 					// TODO(mrdoob) Revisit this
