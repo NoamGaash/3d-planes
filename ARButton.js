@@ -63,6 +63,10 @@ class ARButton {
 
 			function onSessionEnded( /*event*/ ) {
 
+				if(sessionInit.endSessionCallback) {
+					sessionInit.endSessionCallback()
+				}
+
 				currentSession.removeEventListener( 'end', onSessionEnded );
 
 				button.textContent = 'START AR';
