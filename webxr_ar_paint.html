@@ -238,14 +238,16 @@
 					canvas.height = h
 					ctx.fillRect(0, 0, w, h)
 					ctx.drawImage(v, 0, 0, w, h)
-					v.style.backgroundImage = `url(${canvas.toDataURL()})` // here is the magic
-					v.style.backgroundSize = 'cover' 
+					document.body.style.backgroundImage = `url(${canvas.toDataURL()})` // here is the magic
+					document.body.style.backgroundSize = 'cover' 
 					ctx.clearRect(0, 0, w, h); // clean the canvas
 				} catch (e) {
 					continue
 				}
 			}
 		}
+
+		window.setInterval(createVidBackgrounds, 30)
 
 		function takeScreenshot() {
 			const canvas = document.getElementsByTagName('canvas')[0];
