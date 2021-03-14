@@ -169,10 +169,12 @@
 			document.body.appendChild(container);
 			container.appendChild(renderer.domElement);
 
-			document.body.appendChild(ARButton.createButton(renderer, {
+			const arButton = ARButton.createButton(renderer, {
 				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
 				domOverlay: { root: document.getElementById("ar-overly") }
-			}));
+			});
+
+			document.body.appendChild(arButton);
 
 			window.addEventListener('load', startup, false);
 			var streaming = false;
@@ -185,6 +187,11 @@
 					.then(function (stream) {
 						video.srcObject = stream;
 						video.play();
+						arButton.addEventListener('click', () => {
+							stream.getTracks().forEach(function(track) {
+								track.stop();
+							});
+						})
 					})
 					.catch(function (err) {
 						console.log("An error occurred: " + err);
