@@ -314,7 +314,7 @@
 		}
 
 		function loadAircraft(selectedAircraft) {
-			if (selectedAircraft.type == "gltf") {
+			if (selectedAircraft.type == "gltf" || selectedAircraft.type == "glb") {
 				loadAircraftGLTF(selectedAircraft);
 			} else if (selectedAircraft.type == "obj") {
 				loadAircraftOBJ(selectedAircraft);
@@ -323,7 +323,7 @@
 
 		function loadAircraftGLTF(selectedAircraft) {
 			new GLTFLoader()
-				.load('./3d_models/aircrafts/gltf/' + selectedAircraft.id + '/object.gltf', function (gltf) {
+				.load('./3d_models/aircrafts/gltf/' + selectedAircraft.id + '/object.' + selectedAircraft.type, function (gltf) {
 					aircraft = gltf.scene;
 					const scale = selectedAircraft.scale;
 					aircraft.scale.set(scale, scale, scale);
@@ -354,7 +354,7 @@
 		}
 
 		function loadTrails(selectedTrails) {
-			if (selectedTrails.type == "gltf") {
+			if (selectedTrails.type == "gltf" || selectedTrails.type == "glb") {
 				loadTrailsGLTF(selectedTrails);
 			} else if (selectedTrails.type == "obj") {
 				loadTrailsOBJ(selectedTrails);
@@ -364,7 +364,7 @@
 		function loadTrailsGLTF(selectedTrails) {
 			for (let i = 0; i < 9; i++) {
 				new GLTFLoader()
-					.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.glb', function (gltf) {
+					.load('./3d_models/aircrafts/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 						const trail = gltf.scene;
 						const num = ((1 - (i / 10)) % 1) / 10000
 						trail.scale.set(num, num, num);
