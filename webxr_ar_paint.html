@@ -175,14 +175,33 @@
 			}));
 
 			window.addEventListener('load', startup, false);
-			var width = 320;
-			var height = 0;
 			var streaming = false;
 
 			var video = null;
 
 			function startup() {
 				video = document.getElementById('video');
+				navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+					.then(function (stream) {
+						video.srcObject = stream;
+						video.play();
+					})
+					.catch(function (err) {
+						console.log("An error occurred: " + err);
+					});
+				video.addEventListener('canplay', function (ev) {
+					let width = window.screen.width;
+					if (!streaming) {
+						let height = video.videoHeight / (video.videoWidth / width);
+						if (isNaN(height)) {
+							height = width / (4 / 3);
+						}
+						
+						video.setAttribute('width', width);
+						video.setAttribute('height', height);
+						streaming = true;
+					}
+				}, false);
 			}
 			// model
 
