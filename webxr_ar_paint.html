@@ -109,10 +109,10 @@
 			// { id: "rainbow", type: "glb", scale: 0.1, text: "rainbow" },
 			// { id: "cheeseburger", type: "glb", scale: 0.09, text: "cheeseburger" },
 			// { id: "happyface", type: "glb", scale: 0.5, text: "happyface" },
-			{ id: "eyes", type: "glb", scale: 0.02, text: "eyes" },
-			{ id: "poo", type: "glb", scale: 0.5, text: "poo" },
-			{ id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
-			{ id: "smoke", type: "glb", scale: 0.12, text: "smoke" },
+			// { id: "eyes", type: "glb", scale: 0.02, text: "eyes" },
+			// { id: "poo", type: "glb", scale: 0.5, text: "poo" },
+			// { id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
+			// { id: "smoke", type: "glb", scale: 0.12, text: "smoke" },
 			{ id: "star", type: "glb", scale: 0.08, text: "star" },
 			{ id: "moustache", type: "glb", scale: 0.05, text: "moustache" },
 			{ id: "crown", type: "glb", scale: 0.02, text: "crown" },
@@ -433,8 +433,8 @@
 
 		function loadLight() {
 			const light = new THREE.HemisphereLight(0x999999, 0xbbbbff, 0.5);
-			const AmbientLight = new THREE.AmbientLight( 0xDFDFDF ); // soft white light
-			light.position.set(0, 0, 1);
+			const AmbientLight = new THREE.AmbientLight( 0xFFFFFF ); // soft white light
+			light.position.set(0, 1, 1);
 			scene.add(light);
 			scene.add( AmbientLight );
 			const directionalLight = new THREE.DirectionalLight( 0x666666, 0.5 );
