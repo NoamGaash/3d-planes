@@ -98,10 +98,17 @@
 		]
 
 		const TRAILS_META_DATA = [
-			{ id: "eye", type: "gltf", scale: 0.003, text: "eye" },
-			{ id: "gold", type: "obj", scale: 0.003, text: "gold" },
-			{ id: "silver", type: "obj", scale: 0.003, text: "silver" },
-			{ id: "blue", type: "obj", scale: 0.003, text: "blue" }
+			// { id: "eye", type: "glb", scale: 0.003, text: "eye" },
+			// { id: "gold", type: "obj", scale: 0.0001, text: "gold" },
+			// { id: "silver", type: "obj", scale: 0.0001, text: "silver" },
+			// { id: "blue", type: "obj", scale: 0.0001, text: "blue" },
+			{ id: "love", type: "glb", scale: 0.5, text: "love" },
+			{ id: "star2", type: "obj", scale: 0.0001, text: "star2" },
+			{ id: "star", type: "obj", scale: 0.0003, text: "star" },
+			{ id: "ghost", type: "obj", scale: 0.003, text: "ghost" },
+			{ id: "sun", type: "glb", scale: 0.4, text: "sun" },
+			{ id: "heart", type: "glb", scale: 0.05, text: "heart" },
+			{ id: "happyface", type: "glb", scale: 0.5, text: "happyface" },
 		]
 
 		init();
@@ -365,10 +372,11 @@
 		function loadTrailsGLTF(selectedTrails) {
 			for (let i = 0; i < 9; i++) {
 				new GLTFLoader()
-					.load('./3d_models/aircrafts/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
+					.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 						const trail = gltf.scene;
-						const num = ((1 - (i / 10)) % 1) / 10000
-						trail.scale.set(num, num, num);
+						// const num = ((1 - (i / 10)) % 1) / 10000
+						const scale = selectedTrails.scale;
+						trail.scale.set(scale, scale, scale);
 						scene.add(trail);
 						trails.push(trail);
 					}, undefined, function (error) {
@@ -388,8 +396,9 @@
 							.setPath('./3d_models/trails/obj/' + selectedTrails.id + '/')
 							.load('object.obj', function (object) {
 								const trail = object;
-								const num = ((1 - (i / 10)) % 1) / 10000
-								trail.scale.set(num, num, num);
+								// const num = ((1 - (i / 10)) % 1) / 10000
+								const scale = selectedTrails.scale;
+								trail.scale.set(scale, scale, scale);
 								scene.add(trail);
 								trails.push(trail);
 							}, undefined, function (error) {
