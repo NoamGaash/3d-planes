@@ -102,13 +102,21 @@
 			// { id: "gold", type: "obj", scale: 0.0001, text: "gold" },
 			// { id: "silver", type: "obj", scale: 0.0001, text: "silver" },
 			// { id: "blue", type: "obj", scale: 0.0001, text: "blue" },
-			{ id: "love", type: "glb", scale: 0.5, text: "love" },
-			{ id: "star2", type: "obj", scale: 0.0001, text: "star2" },
-			{ id: "star", type: "obj", scale: 0.0003, text: "star" },
-			{ id: "ghost", type: "obj", scale: 0.003, text: "ghost" },
-			{ id: "sun", type: "glb", scale: 0.4, text: "sun" },
-			{ id: "heart", type: "glb", scale: 0.05, text: "heart" },
-			{ id: "happyface", type: "glb", scale: 0.5, text: "happyface" },
+			// { id: "love", type: "glb", scale: 0.5, text: "love" },
+			// { id: "star2", type: "obj", scale: 0.0001, text: "star2" },
+			// { id: "star", type: "obj", scale: 0.0003, text: "star" },
+			// { id: "ghost", type: "obj", scale: 0.003, text: "ghost" },
+			// { id: "rainbow", type: "glb", scale: 0.1, text: "rainbow" },
+			// { id: "cheeseburger", type: "glb", scale: 0.09, text: "cheeseburger" },
+			// { id: "happyface", type: "glb", scale: 0.5, text: "happyface" },
+			{ id: "eyes", type: "glb", scale: 0.02, text: "eyes" },
+			{ id: "poo", type: "glb", scale: 0.5, text: "poo" },
+			{ id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
+			{ id: "smoke", type: "glb", scale: 0.12, text: "smoke" },
+			{ id: "star", type: "glb", scale: 0.08, text: "star" },
+			{ id: "moustache", type: "glb", scale: 0.05, text: "moustache" },
+			{ id: "crown", type: "glb", scale: 0.02, text: "crown" },
+			{ id: "doughnut", type: "glb", scale: 0.1, text: "doughnut" },
 		]
 
 		init();
@@ -168,7 +176,6 @@
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.xr.enabled = true;
-
 			// controls
 			controls = new OrbitControls(camera, renderer.domElement);
 			controls.listenToKeyEvents(window); // optional
@@ -425,9 +432,11 @@
 		}
 
 		function loadLight() {
-			const light = new THREE.HemisphereLight(0x999999, 0xbbbbff, 1);
-			light.position.set(0, 1, 0);
+			const light = new THREE.HemisphereLight(0x999999, 0xbbbbff, 0.5);
+			const AmbientLight = new THREE.AmbientLight( 0xDFDFDF ); // soft white light
+			light.position.set(0, 0, 1);
 			scene.add(light);
+			scene.add( AmbientLight );
 			const directionalLight = new THREE.DirectionalLight( 0x666666, 0.5 );
 			scene.add( directionalLight );
 		}
