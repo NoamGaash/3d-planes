@@ -48,9 +48,9 @@
 		<div id="controls">
 			<!-- <button id="button-action" type="button">screenshot</button>
 			<button id="button-reset" type="button">reset</button> -->
-			<img src="./assets/draw.svg" alt="Draw">
+			<img id="button-reset" src="./assets/Icon material-undo-1.svg" alt="Draw">
 			<img id="button-action" src="./assets/flash.svg" alt="Toggle Flash">
-			<img id="button-reset" src="./assets/x.svg" alt="Close">
+			<img id="button-close" src="./assets/x.svg" alt="Close">
 		</div>
 		<div id="menus">
 			<div id="trails_menu">
@@ -124,23 +124,19 @@
 
 		const TRAILS_META_DATA = [
 			// { id: "gold", type: "obj", scale: 0.0001, text: "gold" },
-			// { id: "silver", type: "obj", scale: 0.0001, text: "silver" },
-			// { id: "blue", type: "obj", scale: 0.0001, text: "blue" },
-			// { id: "love", type: "glb", scale: 0.5, text: "love" },
-			// { id: "star2", type: "obj", scale: 0.0001, text: "star2" },
-			// { id: "star", type: "obj", scale: 0.0003, text: "star" },
+			{ id: "blue", type: "obj", scale: 0.0001, text: "david" },
+			{ id: "heart", type: "glb", scale: 0.005, text: "Red heart" },
 			// { id: "ghost", type: "obj", scale: 0.003, text: "ghost" },
-			// { id: "rainbow", type: "glb", scale: 0.1, text: "rainbow" },
-			// { id: "cheeseburger", type: "glb", scale: 0.09, text: "cheeseburger" },
-			// { id: "happyface", type: "glb", scale: 0.5, text: "happyface" },
-			{ id: "eyes", type: "glb", scale: 0.02, text: "eyes" },
+			// { id: "rainbow", type: "glb", scale: 0.03, text: "Personified Rainbow" },
+			{ id: "cheeseburger", type: "glb", scale: 0.07, text: "cheeseburger" },
+			{ id: "happyface", type: "glb", scale: 0.5, text: "Happy Face" },
+			{ id: "love", type: "glb", scale: 0.5, text: "Heart Eyes Face" },
 			{ id: "poo", type: "glb", scale: 0.5, text: "poo" },
-			{ id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
-			// { id: "smoke", type: "glb", scale: 0.12, text: "smoke" },
-			{ id: "star", type: "glb", scale: 0.08, text: "star" },
-			{ id: "moustache", type: "glb", scale: 0.05, text: "moustache" },
-			{ id: "crown", type: "glb", scale: 0.02, text: "crown" },
-			{ id: "doughnut", type: "glb", scale: 0.1, text: "doughnut" },
+			// { id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
+			{ id: "star", type: "glb", scale: 0.05, text: "star" },
+			// { id: "moustache", type: "glb", scale: 0.05, text: "moustache" },
+			// { id: "crown", type: "glb", scale: 0.01, text: "crown" },
+			{ id: "doughnut", type: "glb", scale: 0.09, text: "doughnut" },
 		]
 
 		init();
@@ -179,15 +175,15 @@
 				})
 			})
 
-			TRAILS_META_DATA.forEach(aircraft => {
+			TRAILS_META_DATA.forEach(trail => {
 				const elem = document.createElement('button');
 				elem.classList.add("trails-option");
 				elem.type = "button";
-				elem.id = aircraft.id;
-				elem.innerHTML = `<img src="./assets/${aircraft.text}.png">`;
+				elem.id = trail.id;
+				elem.innerHTML = `<img src="./assets/${trail.text}.png">`;
 				document.getElementById('trails_menu').insertBefore(elem, document.getElementById('trails_menu').children[2]);
 				elem.addEventListener('click', () => {
-					changeTrails(aircraft);
+					changeTrails(trail);
 				})
 			})
 
@@ -264,7 +260,7 @@
 			loadLight();
 			loadPainter();
 			loadController();
-			changeTrails(TRAILS_META_DATA[3]);
+			changeTrails(TRAILS_META_DATA[0]);
 
 			window.addEventListener('resize', onWindowResize);
 		}
@@ -401,12 +397,16 @@
 		}
 
 		function loadTrailsGLTF(selectedTrails) {
-			for (let i = 0; i < 9; i++) {
+			for (let i = 0; i < 7; i++) {
 				new GLTFLoader()
 					.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 						const trail = gltf.scene;
-						// const num = ((1 - (i / 10)) % 1) / 10000
-						const scale = selectedTrails.scale;
+						// const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+						let scale = (selectedTrails.scale); 
+						if( i == 0 ) {
+							scale = scale/2;
+						}
+						// const scale = selectedTrails.scale;
 						trail.scale.set(scale, scale, scale);
 						scene.add(trail);
 						trails.push(trail);
@@ -518,11 +518,11 @@
 				aircraft.lookAt(...nextLoc);
 
 				for (let i = 0; i < trails.length; i++) {
-					const currTrailLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.98 - (i / 50));
+					const currTrailLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.97 - (i / 50));
 					trails[i].position.set(...currTrailLoc);
-					trails[i].rotation.x += (0.05 + i / 75);
-					trails[i].rotation.z += (0.05 + i / 75);
-					trails[i].rotation.z += (0.05 + i / 75);
+					trails[i].rotation.x += (0.01 + i / 700);
+					trails[i].rotation.y += (0.02 + i / 600);
+					trails[i].rotation.z += (0.03 + i / 500);
 				}
 			}
 		}
@@ -596,19 +596,19 @@
 			)
 		}
 
-		window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-			alert("Error occured: " + JSON.stringify({errorMsg, url, lineNumber}));//or any message
-			alert("toError:", window.toError)
-			return false;
-		}
+		// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+		// 	alert("Error occured: " + JSON.stringify({errorMsg, url, lineNumber}));//or any message
+		// 	alert("toError:", window.toError)
+		// 	return false;
+		// }
 
-		var isScrolling;
-		document.getElementById("aircrafts_menu").addEventListener('scroll', function ( event ) {
-			window.clearTimeout(isScrolling);
-			isScrolling = setTimeout(function() {
-				console.log( 'Scrolling has stopped.' );
-			}, 66);
-		}, false);
+		// var isScrolling;
+		// document.getElementById("aircrafts_menu").addEventListener('scroll', function ( event ) {
+		// 	window.clearTimeout(isScrolling);
+		// 	isScrolling = setTimeout(function() {
+		// 		console.log( 'Scrolling has stopped.' );
+		// 	}, 66);
+		// }, false);
 
 	</script>
 
