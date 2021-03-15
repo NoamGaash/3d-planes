@@ -54,10 +54,16 @@
 		</div>
 		<div id="menus">
 			<div id="trails_menu">
-				<div style="width: calc(50vw - 35px);"></div>
+				<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
 				<img class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
+				<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
 			</div>
-			<div id="aircrafts_menu"></div>
+			
+			<div id="aircrafts_menu">
+				<div style="width: 200px; flex: 1 0 auto;"></div>
+				<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
+			</div>
+			
 			<div id="settings_menu">
 				<div style="width: 40px;"></div>
 				<div class="mode-menu">
@@ -117,10 +123,24 @@
 		]
 
 		const TRAILS_META_DATA = [
-			{ id: "eye", type: "gltf", scale: 0.003, text: "heart" },
-			{ id: "gold", type: "obj", scale: 0.003, text: "fireworks" },
-			{ id: "silver", type: "obj", scale: 0.003, text: "bbq" },
-			{ id: "blue", type: "obj", scale: 0.003, text: "diamond" }
+			// { id: "gold", type: "obj", scale: 0.0001, text: "gold" },
+			// { id: "silver", type: "obj", scale: 0.0001, text: "silver" },
+			// { id: "blue", type: "obj", scale: 0.0001, text: "blue" },
+			// { id: "love", type: "glb", scale: 0.5, text: "love" },
+			// { id: "star2", type: "obj", scale: 0.0001, text: "star2" },
+			// { id: "star", type: "obj", scale: 0.0003, text: "star" },
+			// { id: "ghost", type: "obj", scale: 0.003, text: "ghost" },
+			// { id: "rainbow", type: "glb", scale: 0.1, text: "rainbow" },
+			// { id: "cheeseburger", type: "glb", scale: 0.09, text: "cheeseburger" },
+			// { id: "happyface", type: "glb", scale: 0.5, text: "happyface" },
+			{ id: "eyes", type: "glb", scale: 0.02, text: "eyes" },
+			{ id: "poo", type: "glb", scale: 0.5, text: "poo" },
+			{ id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
+			// { id: "smoke", type: "glb", scale: 0.12, text: "smoke" },
+			{ id: "star", type: "glb", scale: 0.08, text: "star" },
+			{ id: "moustache", type: "glb", scale: 0.05, text: "moustache" },
+			{ id: "crown", type: "glb", scale: 0.02, text: "crown" },
+			{ id: "doughnut", type: "glb", scale: 0.1, text: "doughnut" },
 		]
 
 		init();
@@ -153,7 +173,7 @@
 				elem.type = "button";
 				elem.id = aircraft.id;
 				elem.innerHTML = `<img src="./assets/${aircraft.text}.png"/>`;
-				document.getElementById('aircrafts_menu').appendChild(elem);
+				document.getElementById('aircrafts_menu').insertBefore(elem, document.getElementById('aircrafts_menu').children[1]);
 				elem.addEventListener('click', () => {
 					changeAircraft(aircraft);
 				})
@@ -164,8 +184,8 @@
 				elem.classList.add("trails-option");
 				elem.type = "button";
 				elem.id = aircraft.id;
-				elem.innerHTML = `<img src="./assets/${aircraft.text}.svg">`;
-				document.getElementById('trails_menu').appendChild(elem);
+				elem.innerHTML = `<img src="./assets/${aircraft.text}.png">`;
+				document.getElementById('trails_menu').insertBefore(elem, document.getElementById('trails_menu').children[2]);
 				elem.addEventListener('click', () => {
 					changeTrails(aircraft);
 				})
@@ -180,7 +200,6 @@
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.xr.enabled = true;
-
 			// controls
 			controls = new OrbitControls(camera, renderer.domElement);
 			controls.listenToKeyEvents(window); // optional
@@ -384,10 +403,11 @@
 		function loadTrailsGLTF(selectedTrails) {
 			for (let i = 0; i < 9; i++) {
 				new GLTFLoader()
-					.load('./3d_models/aircrafts/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
+					.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 						const trail = gltf.scene;
-						const num = ((1 - (i / 10)) % 1) / 10000
-						trail.scale.set(num, num, num);
+						// const num = ((1 - (i / 10)) % 1) / 10000
+						const scale = selectedTrails.scale;
+						trail.scale.set(scale, scale, scale);
 						scene.add(trail);
 						trails.push(trail);
 					}, undefined, function (error) {
@@ -407,8 +427,9 @@
 							.setPath('./3d_models/trails/obj/' + selectedTrails.id + '/')
 							.load('object.obj', function (object) {
 								const trail = object;
-								const num = ((1 - (i / 10)) % 1) / 10000
-								trail.scale.set(num, num, num);
+								// const num = ((1 - (i / 10)) % 1) / 10000
+								const scale = selectedTrails.scale;
+								trail.scale.set(scale, scale, scale);
 								scene.add(trail);
 								trails.push(trail);
 							}, undefined, function (error) {
@@ -435,9 +456,11 @@
 		}
 
 		function loadLight() {
-			const light = new THREE.HemisphereLight(0x999999, 0xbbbbff, 1);
-			light.position.set(0, 1, 0);
+			const light = new THREE.HemisphereLight(0x999999, 0xbbbbff, 0.5);
+			const AmbientLight = new THREE.AmbientLight( 0xFFFFFF ); // soft white light
+			light.position.set(0, 1, 1);
 			scene.add(light);
+			scene.add( AmbientLight );
 			const directionalLight = new THREE.DirectionalLight( 0x666666, 0.5 );
 			scene.add( directionalLight );
 		}
@@ -578,6 +601,14 @@
 			alert("toError:", window.toError)
 			return false;
 		}
+
+		var isScrolling;
+		document.getElementById("aircrafts_menu").addEventListener('scroll', function ( event ) {
+			window.clearTimeout(isScrolling);
+			isScrolling = setTimeout(function() {
+				console.log( 'Scrolling has stopped.' );
+			}, 66);
+		}, false);
 
 	</script>
 

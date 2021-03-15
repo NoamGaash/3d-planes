@@ -234,9 +234,11 @@ canvas {
 
 #aircrafts_menu {
   width: 100%;
+  overflow: scroll;
   display: flex;
-  justify-content: center;
   align-items: center;
+  min-width: 0;
+  scroll-snap-type: inline mandatory;
 }
 
 #aircrafts_menu img {
@@ -245,6 +247,9 @@ canvas {
 }
 
 .aircraft-option {
+  padding: 0 !important;
+  flex: 1 0 auto;
+  scroll-snap-align: center;
   height: 50px;
   width: 50px;
   outline: none;
@@ -267,9 +272,12 @@ canvas {
 
 
 #trails_menu {
-  white-space: nowrap;
+  width: 100%;
+  overflow: scroll;
   display: flex;
   align-items: center;
+  min-width: 0;
+  scroll-snap-type: inline mandatory;
 }
 #trails_menu img {
   display: inline-block;
@@ -277,6 +285,8 @@ canvas {
 }
 
 .trails-option {
+  flex: 1 0 auto;
+  scroll-snap-align: center;
   height: 28px;
   width: 28px;
   outline: none;
