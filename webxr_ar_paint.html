@@ -325,11 +325,12 @@
 		function loadAircraftGLTF(selectedAircraft) {
 			new GLTFLoader()
 				.load('./3d_models/aircrafts/gltf/' + selectedAircraft.id + '/object.' + selectedAircraft.type, function (gltf) {
+					if(aircraft)
+						scene.remove(aircraft);
 					aircraft = gltf.scene;
 					const scale = selectedAircraft.scale;
 					aircraft.scale.set(scale, scale, scale);
 					scene.add(aircraft);
-
 				}, undefined, function (error) {
 					console.error(error);
 				});
@@ -344,6 +345,8 @@
 						.setMaterials(materials)
 						.setPath('./3d_models/aircrafts/obj/' + selectedAircraft.id + '/')
 						.load('object.obj', function (object) {
+							if(aircraft)
+								scene.remove(aircraft);
 							aircraft = object;
 							const scale = selectedAircraft.scale;
 							aircraft.scale.set(scale, scale, scale);
@@ -402,7 +405,6 @@
 		function changeAircraft(selectedAircraft) {
 			AIRCRAFTS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
 			document.getElementById(selectedAircraft.id).classList.add("selected");
-			scene.remove(aircraft);
 			loadAircraft(selectedAircraft);
 		}
 
