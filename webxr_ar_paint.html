@@ -6,6 +6,9 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 	<link type="text/css" rel="stylesheet" href="main.css">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -41,13 +44,29 @@
 
 <body>
 	<div id="ar-overly">
+		
 		<div id="controls">
-			<button id="button-action" class="tool-button" type="button">screenshot</button>
-			<button id="button-reset" class="tool-button" type="button">reset</button>
+			<!-- <button id="button-action" type="button">screenshot</button>
+			<button id="button-reset" type="button">reset</button> -->
+			<img src="./assets/draw.svg" alt="Draw">
+			<img id="button-action" src="./assets/flash.svg" alt="Toggle Flash">
+			<img id="button-reset" src="./assets/x.svg" alt="Close">
 		</div>
 		<div id="menus">
-			<div id="trails_menu"></div>
+			<div id="trails_menu">
+				<div style="width: calc(50vw - 35px);"></div>
+				<img class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
+			</div>
 			<div id="aircrafts_menu"></div>
+			<div id="settings_menu">
+				<div style="width: 40px;"></div>
+				<div class="mode-menu">
+					<div>GIF</div>
+					<div class="selected">תמונה</div>
+					<div>סרטון</div>
+				</div>
+				<img class="flip-camera" src="./assets/flip-camera.svg" alt="Flip Camera">
+			</div>
 		</div>
     <!-- <div class="USDZ-container">
         <a rel="ar" href="https://developer.apple.com/augmented-reality/quick-look/models/biplane/toy_biplane.usdz"><img class="image-model" src="https://developer.apple.com/augmented-reality/quick-look/models/biplane/biplane_2x.jpg" alt="" data-hires-status="replaced"></a>
@@ -90,18 +109,18 @@
 		locations = addMidpoints(locations, 20)
 
 		const AIRCRAFTS_META_DATA = [
-			{ id: "f15", type: "obj", scale: 0.007, text: "f-15" },
+			{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
 			{ id: "aero", type: "glb", scale: 0.005, text: "aero" },
 			{ id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
 			{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
-			{ id: "rafael", type: "gltf", scale: 0.005, text: "f-99" }
+			{ id: "rafael", type: "gltf", scale: 0.005, text: "f99" }
 		]
 
 		const TRAILS_META_DATA = [
-			{ id: "eye", type: "gltf", scale: 0.003, text: "eye" },
-			{ id: "gold", type: "obj", scale: 0.003, text: "gold" },
-			{ id: "silver", type: "obj", scale: 0.003, text: "silver" },
-			{ id: "blue", type: "obj", scale: 0.003, text: "blue" }
+			{ id: "eye", type: "gltf", scale: 0.003, text: "heart" },
+			{ id: "gold", type: "obj", scale: 0.003, text: "fireworks" },
+			{ id: "silver", type: "obj", scale: 0.003, text: "bbq" },
+			{ id: "blue", type: "obj", scale: 0.003, text: "diamond" }
 		]
 
 		init();
@@ -133,7 +152,7 @@
 				elem.classList.add("aircraft-option");
 				elem.type = "button";
 				elem.id = aircraft.id;
-				elem.innerText = aircraft.text;
+				elem.innerHTML = `<img src="./assets/${aircraft.text}.png"/>`;
 				document.getElementById('aircrafts_menu').appendChild(elem);
 				elem.addEventListener('click', () => {
 					changeAircraft(aircraft);
@@ -145,7 +164,7 @@
 				elem.classList.add("trails-option");
 				elem.type = "button";
 				elem.id = aircraft.id;
-				elem.innerText = aircraft.text;
+				elem.innerHTML = `<img src="./assets/${aircraft.text}.svg">`;
 				document.getElementById('trails_menu').appendChild(elem);
 				elem.addEventListener('click', () => {
 					changeTrails(aircraft);
@@ -579,6 +598,8 @@
 			document.getElementsByClassName('USDZ-container')[0].innerHTML = "USDZ not supported 😢"
 		}
 	</script> -->
+
+	
 </body>
 
 </html>
