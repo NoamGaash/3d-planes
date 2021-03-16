@@ -410,43 +410,6 @@
 				}
 			}
 
-			function loadAircraftGLTF(selectedAircraft) {
-				new GLTFLoader()
-					.load('./3d_models/aircrafts/gltf/' + selectedAircraft.id + '/object.' + selectedAircraft.type, function (gltf) {
-						aircraft = gltf.scene;
-						const scale = selectedAircraft.scale;
-						aircraft.scale.set(scale, scale, scale);
-						scene.add(aircraft);
-
-					}, undefined, function (error) {
-						console.error(error);
-					});
-			}
-
-			function loadAircraftOBJ(selectedAircraft) {
-				new MTLLoader()
-					.setPath('./3d_models/aircrafts/obj/' + selectedAircraft.id + '/')
-					.load('object.mtl', function (materials) {
-						materials.preload();
-						new OBJLoader()
-							.setMaterials(materials)
-							.setPath('./3d_models/aircrafts/obj/' + selectedAircraft.id + '/')
-							.load('object.obj', function (object) {
-								aircraft = object;
-								const scale = selectedAircraft.scale;
-								aircraft.scale.set(scale, scale, scale);
-								scene.add(aircraft);
-							}, undefined, function (error) {
-								console.error(error);
-							});
-					});
-			}
-
-			function changeAircraft(selectedAircraft) {
-				AIRCRAFTS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
-				document.getElementById(selectedAircraft.id).classList.add("selected");
-				loadAircraft(selectedAircraft);
-			}
 			function loadTrails(selectedTrails) {
 				if (selectedTrails.type == "gltf" || selectedTrails.type == "glb") {
 					loadTrailsGLTF(selectedTrails);
