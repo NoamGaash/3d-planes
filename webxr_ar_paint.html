@@ -44,13 +44,10 @@
 
 	<body>
 		<div id="ar-overly">
-
 			<div id="controls">
-				<!-- <button id="button-action" type="button">screenshot</button>
-			<button id="button-reset" type="button">reset</button> -->
-				<img id="button-reset" src="./assets/Icon material-undo-1.svg" alt="Draw">
-				<img id="button-action" src="./assets/flash.svg" alt="Toggle Flash">
-				<img id="button-close" src="./assets/x.svg" alt="Close">
+				<button id="button-reset" alt="Draw">
+				<button id="button-action" alt="Toggle Flash">
+				<button id="button-close" alt="Close">
 			</div>
 			<div id="menus">
 				<div id="trails_menu">
@@ -133,17 +130,17 @@
 				// { id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
 				{ id: "heart", type: "glb", scale: 0.005, text: "Red heart" },
 				{ id: "blue", type: "obj", scale: 0.0001, text: "david" },
-				{ id: "cheeseburger", type: "glb", scale: 0.07, text: "cheeseburger" },
-				{ id: "happyface", type: "glb", scale: 0.5, text: "Happy Face" },
+				// { id: "cheeseburger", type: "glb", scale: 0.07, text: "cheeseburger" },
+				// { id: "happyface", type: "glb", scale: 0.5, text: "Happy Face" },
 				{ id: "love", type: "glb", scale: 0.5, text: "Heart Eyes Face" },
-				{ id: "poo", type: "glb", scale: 0.5, text: "poo" },
+				// { id: "poo", type: "glb", scale: 0.5, text: "poo" },
 				{ id: "star", type: "glb", scale: 0.05, text: "star" },
 				{ id: "doughnut", type: "glb", scale: 0.09, text: "doughnut" },
-				{ id: "disco", type: "glb", scale: 0.009, text: "Disco Ball" },
+				// { id: "disco", type: "glb", scale: 0.009, text: "Disco Ball" },
 				{ id: "beachball", type: "glb", scale: 0.25, text: "Beach Ball" },
-				{ id: "basketball", type: "glb", scale: 0.025, text: "Basketball" },
-				{ id: "cake", type: "glb", scale: 0.04, text: "cake" },
-				{ id: "present", type: "glb", scale: 0.09, text: "present" },
+				// { id: "basketball", type: "glb", scale: 0.025, text: "Basketball" },
+				// { id: "cake", type: "glb", scale: 0.04, text: "cake" },
+				// { id: "present", type: "glb", scale: 0.09, text: "present" },
 			]
 
 			init();
@@ -169,6 +166,9 @@
 			});
 
 			function init() {
+
+				document.getElementById('controls').addEventListener('beforexrselect', ev => ev.preventDefault());
+				document.getElementById('menus').addEventListener('beforexrselect', ev => ev.preventDefault());
 
 				AIRCRAFTS_META_DATA.forEach(aircraft => {
 					const elem = document.createElement('button');
@@ -274,6 +274,10 @@
 					resetScene();
 				})
 
+				document.getElementById("button-close").addEventListener("click", (e) => {
+					resetScene();
+				})
+
 				changeAircraft(AIRCRAFTS_META_DATA[0]);
 				loadLight();
 				loadPainter();
@@ -330,7 +334,9 @@
 			}
 
 			function loadController() {
-				function onSelectStart() {
+				function onSelectStart(event) {
+					event.inputSource
+					
 					this.userData.isSelecting = true;
 					this.userData.skipFrames = 2;
 					document.body.classList.add('is-selecting')
@@ -341,9 +347,15 @@
 					firebase.database().ref('path').set(locations);
 					document.body.classList.remove('is-selecting')
 				}
+
+				function beforeXRSelect(e) {
+					e.preventDefault();
+				}
+
 				controller = renderer.xr.getController(0);
 				controller.addEventListener('selectstart', onSelectStart);
 				controller.addEventListener('selectend', onSelectEnd);
+				controller.addEventListener('beforexrselect', beforeXRSelect)
 				controller.userData.skipFrames = 0;
 				scene.add(controller);
 			}
@@ -423,8 +435,8 @@
 					new GLTFLoader()
 						.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 							const trail = gltf.scene;
-							// const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
-							let scale = (selectedTrails.scale);
+							const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+							// let scale = (selectedTrails.scale);
 							if (i == 0) {
 								scale = scale / 2;
 							}
@@ -450,7 +462,8 @@
 								.load('object.obj', function (object) {
 									const trail = object;
 									// const num = ((1 - (i / 10)) % 1) / 10000
-									const scale = selectedTrails.scale;
+									const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+									// const scale = selectedTrails.scale;
 									trail.scale.set(scale, scale, scale);
 									scene.add(trail);
 									trails.push(trail);
@@ -464,7 +477,6 @@
 			function changeAircraft(selectedAircraft) {
 				AIRCRAFTS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
 				document.getElementById(selectedAircraft.id).classList.add("selected");
-				scene.remove(aircraft);
 				loadAircraft(selectedAircraft);
 			}
 
@@ -495,16 +507,16 @@
 				SpotLight.position.set(-50, 50, 50);
 				scene.add(SpotLight);
 
-				const LightHelper1 = new THREE.HemisphereLightHelper(HemisphereLight);
-				const LightHelper2 = new THREE.HemisphereLightHelper(HemisphereLight1);
-				const LightHelper3 = new THREE.SpotLightHelper(SpotLight);
-				const LightHelper4 = new THREE.DirectionalLightHelper(DirectionalLight);
+				// const LightHelper1 = new THREE.HemisphereLightHelper(HemisphereLight);
+				// const LightHelper2 = new THREE.HemisphereLightHelper(HemisphereLight1);
+				// const LightHelper3 = new THREE.SpotLightHelper(SpotLight);
+				// const LightHelper4 = new THREE.DirectionalLightHelper(DirectionalLight);
 
-				scene.add(LightHelper1);
-				scene.add(LightHelper2);
-				scene.add(LightHelper3);
-				scene.add(LightHelper4);
-				scene.add(new THREE.AxesHelper(500));
+				// scene.add(LightHelper1);
+				// scene.add(LightHelper2);
+				// scene.add(LightHelper3);
+				// scene.add(LightHelper4);
+				// scene.add(new THREE.AxesHelper(500));
 			}
 
 			function onWindowResize() {
@@ -615,7 +627,7 @@
 			}
 
 			function getCurrentTravelPercent() {
-				const totalMillis = travelLength(locations) * 10000;
+				const totalMillis = travelLength(locations) * 5000;
 				if (Date.now() - animationCycleStart > totalMillis)
 					animationCycleStart = Date.now();
 
