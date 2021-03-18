@@ -185,7 +185,7 @@
 
 			function startup() {
 				video = document.getElementById('video');
-				navigator.getUserMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.mediaDevices.getUserMedia);
+				navigator.getUserMedia = ( navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 				navigator.getUserMedia({ video: true, audio: false })
 					.then(function (stream) {
 						video.srcObject = stream;
