@@ -45,9 +45,10 @@
 	<body>
 		<div id="ar-overly">
 			<div id="controls">
-				<button id="button-reset" alt="Draw">
-				<button id="button-action" alt="Toggle Flash">
-				<button id="button-close" alt="Close">
+				<button id="button-reset" alt="Draw"></body>
+				<button id="button-action" alt="Toggle Flash" class="dynamic"></button>
+				<button id="button-mode-toggle" alt="Toggle mode"></button>
+				<button id="button-close" alt="Close"></button>
 			</div>
 			<div id="menus">
 				<div id="trails_menu">
@@ -145,6 +146,8 @@
 
 			init();
 			animate();
+
+			let mode = 'dynamic'
 
 			var pathRef = firebase.database().ref('path');
 			pathRef.on('value', (snapshot) => {
@@ -277,6 +280,17 @@
 
 				document.getElementById("button-close").addEventListener("click", (e) => {
 					resetScene();
+				})
+				document.getElementById('button-mode-toggle').addEventListener("click", function() {
+					if(mode =='static') {
+						mode = 'dynamid'
+						this.classList.add('dynamic')
+						this.classList.remove('static')
+					} else {
+						mode = 'static'
+						this.classList.add('static')
+						this.classList.remove('dynamic')
+					}
 				})
 
 				changeAircraft(AIRCRAFTS_META_DATA[0]);

@@ -158,6 +158,15 @@ select {
 #controls #button-close {
   background-image: url('./assets/x.svg');
 }
+#controls #button-mode-toggle {
+  color: white;
+}
+#controls #button-mode-toggle.dynamic::after {
+  content: 'dynamic'
+}
+#controls #button-mode-toggle.static::after {
+  content: 'static'
+}
 
 .tool-button {
   height: 50px;
