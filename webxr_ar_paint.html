@@ -436,7 +436,7 @@
 					new GLTFLoader()
 						.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 							const trail = gltf.scene;
-							const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+							let scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
 							// let scale = (selectedTrails.scale);
 							if (i == 0) {
 								scale = scale / 2;
