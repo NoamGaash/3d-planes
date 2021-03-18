@@ -46,8 +46,8 @@
 		<div id="ar-overly">
 			<div id="controls">
 				<button id="button-reset" alt="Draw"></body>
-				<button id="button-action" alt="Toggle Flash" class="dynamic"></button>
-				<button id="button-mode-toggle" alt="Toggle mode"></button>
+				<button id="button-action" alt="Toggle Flash"></button>
+				<button id="button-mode-toggle" alt="Toggle mode" class="dynamic"></button>
 				<button id="button-close" alt="Close"></button>
 			</div>
 			<div id="menus">
@@ -283,13 +283,15 @@
 				})
 				document.getElementById('button-mode-toggle').addEventListener("click", function() {
 					if(mode =='static') {
-						mode = 'dynamid'
+						mode = 'dynamic'
 						this.classList.add('dynamic')
 						this.classList.remove('static')
+						if(locations.length) locations.pop()
 					} else {
 						mode = 'static'
 						this.classList.add('static')
 						this.classList.remove('dynamic')
+						locations.push([cursor.x, cursor.y, cursor.z])
 					}
 				})
 
@@ -565,6 +567,11 @@
 				handleController(controller);
 				if (aircraft)
 					placeAircraft()
+				if(mode == 'dynamic') {
+					trails.forEach(trail => trail.children[0].children[0].material.opacity = 1)
+				} else  {
+					trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+				}
 				renderer.render(scene, camera);
 			}
 
@@ -577,21 +584,25 @@
 				} else if (locations.length === 1)
 					aircraft?.position.set(...locations[0])
 				else {
-					const smoothLocations = smooth(addMidpoints(locations, 8));
-					const currentTravelPercent = getCurrentTravelPercent();
-					//document.getElementById("button-reset").innerHTML = (currentTravelPercent*100).toFixed(2);
-					const currLoc = currentLocationByPercent(smoothLocations, currentTravelPercent),
-						nextLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.01);
+					if(mode == 'dynamic') {
+						const smoothLocations = smooth(addMidpoints(locations, 8));
+						const currentTravelPercent = getCurrentTravelPercent();
+						//document.getElementById("button-reset").innerHTML = (currentTravelPercent*100).toFixed(2);
+						const currLoc = currentLocationByPercent(smoothLocations, currentTravelPercent),
+							nextLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.01);
 
-					aircraft?.position.set(...currLoc);
-					aircraft.lookAt(...nextLoc);
+						aircraft?.position.set(...currLoc);
+						aircraft.lookAt(...nextLoc);
 
-					for (let i = 0; i < trails.length; i++) {
-						const currTrailLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.97 - (i / 50));
-						trails[i].position.set(...currTrailLoc);
-						trails[i].rotation.x += (0.01 + i / 700);
-						trails[i].rotation.y += (0.02 + i / 600);
-						trails[i].rotation.z += (0.03 + i / 500);
+						for (let i = 0; i < trails.length; i++) {
+							const currTrailLoc = currentLocationByPercent(smoothLocations, currentTravelPercent + 0.97 - (i / 50));
+							trails[i].position.set(...currTrailLoc);
+							trails[i].rotation.x += (0.01 + i / 700);
+							trails[i].rotation.y += (0.02 + i / 600);
+							trails[i].rotation.z += (0.03 + i / 500);
+						}
+					} else {
+						aircraft?.position.set(...locations[locations.length - 1])
 					}
 				}
 			}
