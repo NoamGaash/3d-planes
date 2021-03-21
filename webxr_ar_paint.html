@@ -88,12 +88,26 @@
 			import { OBJLoader } from './node_modules/three/examples/jsm/loaders/OBJLoader.js';
 			import { OrbitControls } from "./node_modules/three/examples/jsm/controls/OrbitControls.js";
 
-			let container;
+			import { EXRLoader } from './node_modules/three/examples/jsm/loaders/EXRLoader.js';
+
+
+			let container, stats;
 			let camera, controls, scene, renderer;
 			let controller, painter, aircraft;
 			let animationCycleStart = new Date();
 			let trails = [];
+			let planeMesh;
+			let pngCubeRenderTarget, exrCubeRenderTarget;
+			let pngBackground, exrBackground;
 			const cursor = new THREE.Vector3();
+
+			const params = {
+				envMap: 'EXR',
+				roughness: 0.0,
+				metalness: 0.0,
+				exposure: 1.5,
+				debug: false,
+			};
 
 			let locations = [
 				// top triangle
@@ -199,7 +213,6 @@
 					})
 				})
 
-
 				scene = new THREE.Scene();
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 				camera.position.set(.2, .06, 0);
@@ -208,9 +221,61 @@
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				renderer.xr.enabled = true;
+
+				// environment
+				let material = new THREE.MeshStandardMaterial({
+					metalness: params.roughness,
+					roughness: params.metalness,
+					envMapIntensity: 1.0
+				});
+
+				let geometry = new THREE.PlaneGeometry(200, 200);
+
+				material = new THREE.MeshBasicMaterial();
+
+				planeMesh = new THREE.Mesh(geometry, material);
+				planeMesh.position.y = - 50;
+				planeMesh.rotation.x = - Math.PI * 0.5;
+				scene.add(planeMesh);
+
+				THREE.DefaultLoadingManager.onLoad = function () {
+
+					pmremGenerator.dispose();
+
+				};
+
+				new EXRLoader()
+					.setDataType(THREE.UnsignedByteType)
+					.load('assets/textures/compressed.exr', function (texture) {
+
+						exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+						exrBackground = exrCubeRenderTarget.texture;
+
+						texture.dispose();
+
+					});
+
+				new THREE.TextureLoader().load('assets/textures/equirectangular.png', function (texture) {
+
+					texture.encoding = THREE.sRGBEncoding;
+
+					pngCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+
+					pngBackground = pngCubeRenderTarget.texture;
+
+					texture.dispose();
+
+				});
+
+				const pmremGenerator = new THREE.PMREMGenerator(renderer);
+				pmremGenerator.compileEquirectangularShader();
+
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.outputEncoding = THREE.sRGBEncoding;
+
 				// controls
 				controls = new OrbitControls(camera, renderer.domElement);
-				controls.listenToKeyEvents(window); // optional
+				controls.listenToKeyEvents(window); // optionalz
 
 				container = document.createElement('div');
 				document.body.appendChild(container);
@@ -297,7 +362,7 @@
 						locations.push([cursor.x, cursor.y, cursor.z]);
 						painter.mesh.material.opacity = 0;
 						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
-						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+						trails.forEach(trail => trail.children[0].children[0].material.transparent = true)
 					}
 				})
 
@@ -359,7 +424,7 @@
 			function loadController() {
 				function onSelectStart(event) {
 					event.inputSource
-					
+
 					this.userData.isSelecting = true;
 					this.userData.skipFrames = 2;
 					document.body.classList.add('is-selecting')
@@ -458,7 +523,7 @@
 					new GLTFLoader()
 						.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 							const trail = gltf.scene;
-							let scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+							let scale = (selectedTrails.scale * Math.abs((1 - ((i + 1) / 10)) % 1));
 							// let scale = (selectedTrails.scale);
 							if (i == 0) {
 								scale = scale / 2;
@@ -485,7 +550,7 @@
 								.load('object.obj', function (object) {
 									const trail = object;
 									// const num = ((1 - (i / 10)) % 1) / 10000
-									const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+									const scale = (selectedTrails.scale * Math.abs((1 - ((i + 1) / 10)) % 1));
 									// const scale = selectedTrails.scale;
 									trail.scale.set(scale, scale, scale);
 									scene.add(trail);
@@ -571,14 +636,44 @@
 
 			function render() {
 				handleController(controller);
-				if (aircraft)
-					placeAircraft()
-				if(mode == 'dynamic') {
-					trails.forEach(trail => trail.children[0].children[0].material.opacity = 1)
-					trails.forEach(trail => trail.children[0].children[0].material.transparent = true)
-				} else  {
-					trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+				if (aircraft) {
+					placeAircraft();
 				}
+
+				planeMesh.material.roughness = params.roughness;
+				planeMesh.material.metalness = params.metalness;
+
+				let newEnvMap = planeMesh.material.envMap;
+				let background = scene.background;
+
+				switch (params.envMap) {
+
+					case 'EXR':
+						newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null;
+						background = exrBackground;
+						break;
+					case 'PNG':
+						newEnvMap = pngCubeRenderTarget ? pngCubeRenderTarget.texture : null;
+						background = pngBackground;
+						break;
+
+				}
+
+				if (newEnvMap !== planeMesh.material.envMap) {
+
+					planeMesh.material.envMap = newEnvMap;
+					planeMesh.material.needsUpdate = true;
+
+					planeMesh.material.map = newEnvMap;
+					planeMesh.material.needsUpdate = true;
+
+				}
+
+				planeMesh.rotation.y += 0.005;
+				planeMesh.visible = params.debug;
+
+				scene.background = background;
+				renderer.toneMappingExposure = params.exposure;
 				renderer.render(scene, camera);
 			}
 
@@ -651,15 +746,15 @@
 				if (percent < 0) return currentLocationByPercent(locations, (percent + 100) % 1)
 
 				const totalLen = travelLength(locations);
-				let idx, sum=0;
-				for (idx=0; idx <= locations.length && sum <= totalLen * percent; idx++) {
-					sum += oclidianDistance(locations[idx], locations[(idx+1) % locations.length])
+				let idx, sum = 0;
+				for (idx = 0; idx <= locations.length && sum <= totalLen * percent; idx++) {
+					sum += oclidianDistance(locations[idx], locations[(idx + 1) % locations.length])
 				}
-				if(!locations[idx] || !locations[(idx+1) % locations.length])
+				if (!locations[idx] || !locations[(idx + 1) % locations.length])
 					debugger
-				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx-1], locations[idx]) 
+				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx - 1], locations[idx])
 
-				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1-r))
+				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1 - r))
 			}
 
 			function getCurrentTravelPercent() {
