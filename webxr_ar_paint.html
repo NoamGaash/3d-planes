@@ -53,7 +53,7 @@
 			<div id="menus">
 				<div id="trails_menu">
 					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
-					<img class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
+					<img id="exit-trail" class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
 					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
 				</div>
 
@@ -283,6 +283,11 @@
 				document.getElementById("button-close").addEventListener("click", (e) => {
 					closeScene();
 				})
+
+				document.getElementById("exit-trail").addEventListener("click", (e) => {
+					resetTrail();
+				})
+
 				document.getElementById('button-mode-toggle').addEventListener("click", function() {
 					if(mode =='static') {
 						mode = 'dynamic';
@@ -359,6 +364,13 @@
 			function closeScene(){
 				window.close();
 			}
+
+			function resetTrail(){
+				TRAILS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
+				scene.remove(trails);
+				trails.forEach(trail => { scene.remove(trail) });
+			}
+
 			function loadController() {
 				function onSelectStart(event) {
 					event.inputSource
