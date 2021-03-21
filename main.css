@@ -161,11 +161,12 @@ select {
 #controls #button-mode-toggle {
   color: white;
 }
-#controls #button-mode-toggle.dynamic::after {
-  content: 'dynamic'
+
+#controls #dynamic.button-mode-toggle {
+  background-image: url('./assets/dynamic-mode.svg');
 }
-#controls #button-mode-toggle.static::after {
-  content: 'static'
+#controls #static.button-mode-toggle {
+  background-image: url('./assets/static-mode.svg');
 }
 
 .tool-button {

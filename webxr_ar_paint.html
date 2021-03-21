@@ -45,9 +45,10 @@
 	<body>
 		<div id="ar-overly">
 			<div id="controls">
-				<button id="button-reset" alt="Draw"></body>
+				<button id="button-reset" alt="Draw"></button>
 				<button id="button-action" alt="Toggle Flash"></button>
-				<button id="button-mode-toggle" alt="Toggle mode" class="dynamic"></button>
+				<button class="button-mode-toggle" alt="Toggle mode" id="static"></button>
+				<button class="button-mode-toggle" alt="Toggle mode" id="dynamic"></button>
 				<button id="button-close" alt="Close"></button>
 			</div>
 			<div id="menus">
@@ -242,7 +243,7 @@
 				// 				});
 				function startup() {
 					video = document.getElementById('video');
-					const getUserMedia = ( navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+					const getUserMedia = (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 					getUserMedia({ video: true, audio: false })
 						.then(function (stream) {
 							video.srcObject = stream;
@@ -287,24 +288,46 @@
 				document.getElementById("exit-trail").addEventListener("click", (e) => {
 					resetTrail();
 				})
-
-				document.getElementById('button-mode-toggle').addEventListener("click", function() {
-					if(mode =='static') {
-						mode = 'dynamic';
-						this.classList.add('dynamic');
-						this.classList.remove('static');
-						if(locations.length) locations.pop();
+				
+				function changeMode(mode){
+					if (mode == 'static'){
+						if (locations.length) locations.pop();
 						painter.mesh.material.opacity = 0.3;
-					} else {
-						mode = 'static'
-						this.classList.add('static');
-						this.classList.remove('dynamic');
+					}
+					if (mode == 'dynamic') {
 						locations.push([cursor.x, cursor.y, cursor.z]);
 						painter.mesh.material.opacity = 0;
 						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
 						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
-					}
+					} 
+				}
+
+				document.getElementById("static").addEventListener("click", (e) => {
+					mode = 'static';
+					changeMode(mode);
 				})
+
+				document.getElementById("dynamic").addEventListener("click", (e) => {
+					mode = 'dynamic';
+					changeMode(mode);
+				})
+				// document.getElementsById('button-mode-toggle').addEventListener("click", function () {
+				// 	if (mode == 'static') {
+				// 		mode = 'dynamic';
+				// 		// this.classList.add('dynamic');
+				// 		// this.classList.remove('static');
+				// 		if (locations.length) locations.pop();
+				// 		painter.mesh.material.opacity = 0.3;
+				// 	} else {
+				// 		mode = 'static'
+				// 		// this.classList.add('static');
+				// 		// this.classList.remove('dynamic');
+				// 		locations.push([cursor.x, cursor.y, cursor.z]);
+				// 		painter.mesh.material.opacity = 0;
+				// 		trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+				// 		trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+				// 	}
+				// })
 
 				changeAircraft(AIRCRAFTS_META_DATA[0]);
 				loadLight();
@@ -361,11 +384,11 @@
 				loadPainter();
 			}
 
-			function closeScene(){
+			function closeScene() {
 				window.close();
 			}
 
-			function resetTrail(){
+			function resetTrail() {
 				TRAILS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
 				scene.remove(trails);
 				trails.forEach(trail => { scene.remove(trail) });
@@ -374,7 +397,7 @@
 			function loadController() {
 				function onSelectStart(event) {
 					event.inputSource
-					
+
 					this.userData.isSelecting = true;
 					this.userData.skipFrames = 2;
 					document.body.classList.add('is-selecting')
@@ -473,7 +496,7 @@
 					new GLTFLoader()
 						.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 							const trail = gltf.scene;
-							let scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+							let scale = (selectedTrails.scale * Math.abs((1 - ((i + 1) / 10)) % 1));
 							// let scale = (selectedTrails.scale);
 							if (i == 0) {
 								scale = scale / 2;
@@ -500,7 +523,7 @@
 								.load('object.obj', function (object) {
 									const trail = object;
 									// const num = ((1 - (i / 10)) % 1) / 10000
-									const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+									const scale = (selectedTrails.scale * Math.abs((1 - ((i + 1) / 10)) % 1));
 									// const scale = selectedTrails.scale;
 									trail.scale.set(scale, scale, scale);
 									scene.add(trail);
@@ -588,10 +611,10 @@
 				handleController(controller);
 				if (aircraft)
 					placeAircraft()
-				if(mode == 'dynamic') {
+				if (mode == 'dynamic') {
 					trails.forEach(trail => trail.children[0].children[0].material.opacity = 1)
 					trails.forEach(trail => trail.children[0].children[0].material.transparent = true)
-				} else  {
+				} else {
 					trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
 				}
 				renderer.render(scene, camera);
@@ -606,7 +629,7 @@
 				} else if (locations.length === 1)
 					aircraft?.position.set(...locations[0])
 				else {
-					if(mode == 'dynamic') {
+					if (mode == 'dynamic') {
 						const smoothLocations = smooth(addMidpoints(locations, 8));
 						const currentTravelPercent = getCurrentTravelPercent();
 						//document.getElementById("button-reset").innerHTML = (currentTravelPercent*100).toFixed(2);
@@ -666,15 +689,15 @@
 				if (percent < 0) return currentLocationByPercent(locations, (percent + 100) % 1)
 
 				const totalLen = travelLength(locations);
-				let idx, sum=0;
-				for (idx=0; idx <= locations.length && sum <= totalLen * percent; idx++) {
-					sum += oclidianDistance(locations[idx], locations[(idx+1) % locations.length])
+				let idx, sum = 0;
+				for (idx = 0; idx <= locations.length && sum <= totalLen * percent; idx++) {
+					sum += oclidianDistance(locations[idx], locations[(idx + 1) % locations.length])
 				}
-				if(!locations[idx] || !locations[(idx+1) % locations.length])
+				if (!locations[idx] || !locations[(idx + 1) % locations.length])
 					debugger
-				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx-1], locations[idx]) 
+				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx - 1], locations[idx])
 
-				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1-r))
+				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1 - r))
 			}
 
 			function getCurrentTravelPercent() {
