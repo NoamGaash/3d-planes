@@ -288,19 +288,6 @@
 				document.getElementById("exit-trail").addEventListener("click", (e) => {
 					resetTrail();
 				})
-				
-				function changeMode(mode){
-					if (mode == 'static'){
-						if (locations.length) locations.pop();
-						painter.mesh.material.opacity = 0.3;
-					}
-					if (mode == 'dynamic') {
-						locations.push([cursor.x, cursor.y, cursor.z]);
-						painter.mesh.material.opacity = 0;
-						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
-						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
-					} 
-				}
 
 				document.getElementById("static").addEventListener("click", (e) => {
 					mode = 'static';
@@ -311,23 +298,6 @@
 					mode = 'dynamic';
 					changeMode(mode);
 				})
-				// document.getElementsById('button-mode-toggle').addEventListener("click", function () {
-				// 	if (mode == 'static') {
-				// 		mode = 'dynamic';
-				// 		// this.classList.add('dynamic');
-				// 		// this.classList.remove('static');
-				// 		if (locations.length) locations.pop();
-				// 		painter.mesh.material.opacity = 0.3;
-				// 	} else {
-				// 		mode = 'static'
-				// 		// this.classList.add('static');
-				// 		// this.classList.remove('dynamic');
-				// 		locations.push([cursor.x, cursor.y, cursor.z]);
-				// 		painter.mesh.material.opacity = 0;
-				// 		trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
-				// 		trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
-				// 	}
-				// })
 
 				changeAircraft(AIRCRAFTS_META_DATA[0]);
 				loadLight();
@@ -392,6 +362,22 @@
 				TRAILS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
 				scene.remove(trails);
 				trails.forEach(trail => { scene.remove(trail) });
+			}
+
+			function changeMode(mode) {
+				if (mode == 'static') {
+					this.classList.add('dynamic');
+					this.classList.remove('static');
+					if (locations.length) locations.pop();
+					painter.mesh.material.opacity = 0.3;
+				} else {
+					this.classList.add('static');
+					this.classList.remove('dynamic');
+					locations.push([cursor.x, cursor.y, cursor.z]);
+					painter.mesh.material.opacity = 0;
+					trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+					trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+				}
 			}
 
 			function loadController() {
