@@ -110,7 +110,7 @@
 				[1 / 3, Math.sqrt(3) / 2 + Math.sqrt(3) / 6],
 				//[1, 0],
 			]
-			locations = locations.map(([x, y]) => [-0.1, y / 10 - 0.1, -x / 10])
+			locations = locations.map(([x, y]) => [0, y / 10 - 0.1, -x / 10])
 			locations = addMidpoints(locations, 20)
 
 			const AIRCRAFTS_META_DATA = [
@@ -119,6 +119,7 @@
 				{ id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
 				{ id: "yasur", type: "glb", scale: 0.000007, text: "yasur" },
 				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
+				{ id: "efroni", type: "glb", scale: 0.000007, text: "efroni" },
 				// { id: "aero", type: "glb", scale: 0.005, text: "aero" },
 				// { id: "rafael", type: "gltf", scale: 0.005, text: "f99" }
 			]
@@ -201,7 +202,7 @@
 
 				scene = new THREE.Scene();
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-				camera.position.set(.1, .03, 0);
+				camera.position.set(.2, .06, 0);
 
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 				renderer.setPixelRatio(window.devicePixelRatio);
@@ -284,15 +285,19 @@
 				})
 				document.getElementById('button-mode-toggle').addEventListener("click", function() {
 					if(mode =='static') {
-						mode = 'dynamic'
-						this.classList.add('dynamic')
-						this.classList.remove('static')
-						if(locations.length) locations.pop()
+						mode = 'dynamic';
+						this.classList.add('dynamic');
+						this.classList.remove('static');
+						if(locations.length) locations.pop();
+						painter.mesh.material.opacity = 0.3;
 					} else {
 						mode = 'static'
-						this.classList.add('static')
-						this.classList.remove('dynamic')
-						locations.push([cursor.x, cursor.y, cursor.z])
+						this.classList.add('static');
+						this.classList.remove('dynamic');
+						locations.push([cursor.x, cursor.y, cursor.z]);
+						painter.mesh.material.opacity = 0;
+						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
 					}
 				})
 
@@ -570,6 +575,7 @@
 					placeAircraft()
 				if(mode == 'dynamic') {
 					trails.forEach(trail => trail.children[0].children[0].material.opacity = 1)
+					trails.forEach(trail => trail.children[0].children[0].material.transparent = true)
 				} else  {
 					trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
 				}
