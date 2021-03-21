@@ -98,6 +98,7 @@
 			let locations = [
 				// top triangle
 				[1 / 3, Math.sqrt(3) / 2 + Math.sqrt(3) / 6],
+				[1 / 3, Math.sqrt(3) / 2 + Math.sqrt(3) / 6],
 				[1, 0],
 				[-1, 0],
 				[0, Math.sqrt(3)],
@@ -107,7 +108,7 @@
 				[0, -Math.sqrt(3) / 2 + Math.sqrt(3) / 6],
 				[-1, Math.sqrt(3) / 2 + Math.sqrt(3) / 6],
 				[1 / 3, Math.sqrt(3) / 2 + Math.sqrt(3) / 6],
-				[1, 0],
+				//[1, 0],
 			]
 			locations = locations.map(([x, y]) => [-0.1, y / 10 - 0.1, -x / 10])
 			locations = addMidpoints(locations, 20)
@@ -643,13 +644,16 @@
 				if (percent >= 1) return currentLocationByPercent(locations, percent % 1)
 				if (percent < 0) return currentLocationByPercent(locations, (percent + 100) % 1)
 
-				const idx = Math.floor(locations.length * percent),
-					r = (locations.length * percent) % 1;
+				const totalLen = travelLength(locations);
+				let idx, sum=0;
+				for (idx=0; idx <= locations.length && sum <= totalLen * percent; idx++) {
+					sum += oclidianDistance(locations[idx], locations[(idx+1) % locations.length])
+				}
+				if(!locations[idx] || !locations[(idx+1) % locations.length])
+					debugger
+				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx-1], locations[idx]) 
 
-				if (idx === locations.length - 1)
-					return locations[idx];
-
-				return locations[idx].map((val, axis) => val + (locations[idx + 1][axis] - val) * r)
+				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1-r))
 			}
 
 			function getCurrentTravelPercent() {
