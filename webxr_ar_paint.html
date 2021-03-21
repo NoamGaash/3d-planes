@@ -189,6 +189,21 @@
 
 			function init() {
 
+				// Detect filter change
+				let isAircraftScrolling = setTimeout(() => {}, 0);
+				document.getElementById('aircrafts_menu').onscroll = () => {
+					clearInterval(isAircraftScrolling);
+					isAircraftScrolling = setTimeout(() => {
+						const centeredElement = document.elementFromPoint(
+							document.body.offsetWidth / 2, document.body.offsetHeight + 710
+						);
+						let selected = centeredElement.parentElement.innerHTML.match(`(?<=assets\/)(.*)(?=\.png)`)[0];
+						AIRCRAFTS_META_DATA.forEach((e) => {
+							if (e.id === selected) changeAircraft(e);
+						})
+					}, 100);
+				}
+
 				document.getElementById('controls').addEventListener('beforexrselect', ev => ev.preventDefault());
 				document.getElementById('menus').addEventListener('beforexrselect', ev => ev.preventDefault());
 
@@ -199,9 +214,7 @@
 					elem.id = aircraft.id;
 					elem.innerHTML = `<img src="./assets/${aircraft.text}.png"/>`;
 					document.getElementById('aircrafts_menu').insertBefore(elem, document.getElementById('aircrafts_menu').children[1]);
-					elem.addEventListener('click', () => {
-						changeAircraft(aircraft);
-					})
+					
 				})
 
 				TRAILS_META_DATA.forEach(trail => {
@@ -209,7 +222,7 @@
 					elem.classList.add("trails-option");
 					elem.type = "button";
 					elem.id = trail.id;
-					elem.innerHTML = `<img src="./assets/${trail.text}.png">`;
+					elem.innerHTML = `<img id="${trail.text}" src="./assets/${trail.text}.png">`;
 					document.getElementById('trails_menu').insertBefore(elem, document.getElementById('trails_menu').children[2]);
 					elem.addEventListener('click', () => {
 						changeTrails(trail);

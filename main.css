@@ -348,8 +348,6 @@ canvas {
 }
 
 .aircraft-option.selected {
-  height: 70px;
-  width: 70px;
   background-color: #ffffff;
 }
 
