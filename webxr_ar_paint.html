@@ -281,7 +281,7 @@
 				})
 
 				document.getElementById("button-close").addEventListener("click", (e) => {
-					resetScene();
+					closeScene();
 				})
 				document.getElementById('button-mode-toggle').addEventListener("click", function() {
 					if(mode =='static') {
@@ -356,6 +356,9 @@
 				loadPainter();
 			}
 
+			function closeScene(){
+				window.close();
+			}
 			function loadController() {
 				function onSelectStart(event) {
 					event.inputSource
