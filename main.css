@@ -329,7 +329,7 @@ canvas {
   height: 50px;
   position: absolute;
   left: calc(50% - 29px);
-  top: -59px;
+  bottom: 51px;
 }
 
 #trails_menu {
