@@ -360,7 +360,7 @@ canvas {
   scroll-snap-type: inline mandatory;
 }
 
-div #menus.trails_menu_hide{
+div #trails_menu.trails_menu_hide{
   display:  none;
 }
 

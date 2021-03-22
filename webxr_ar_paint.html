@@ -302,7 +302,8 @@
 				const arButton = ARButton.createButton(renderer, {
 					optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
 					domOverlay: { root: document.getElementById("ar-overly") },
-					endSessionCallback: startup
+					// endSessionCallback: startup,
+					// sclosebutton: document.getElementById("button-close")
 				});
 
 				document.body.appendChild(arButton);
@@ -376,8 +377,8 @@
 						mode = 'dynamic';
 						this.classList.add('dynamic');
 						this.classList.remove('static');
-						let menus = document.getElementById("menus");
-						menus.classList.remove('trails_menu_hide');
+						let trails_menu = document.getElementById("trails_menu");
+						trails_menu.classList.remove('trails_menu_hide');
 						let buttonreset = document.getElementById("resetbutton");
 						buttonreset.classList.remove('trails_menu_hide');
 						if (locations.length) locations.pop();
@@ -386,8 +387,8 @@
 						mode = 'static'
 						this.classList.add('static');
 						this.classList.remove('dynamic');
-						let menus = document.getElementById("menus");
-						menus.classList.add('trails_menu_hide');
+						let trails_menu = document.getElementById("trails_menu");
+						trails_menu.classList.add('trails_menu_hide');
 						let buttonreset = document.getElementById("resetbutton");
 						buttonreset.classList.add('trails_menu_hide');
 						locations.push([cursor.x, cursor.y, cursor.z]);
@@ -396,6 +397,7 @@
 						trails.forEach(trail => trail.children[0].children[0].material.transparent = true)
 					}
 				})
+
 
 				changeAircraft(AIRCRAFTS_META_DATA[0]);
 				loadLight();
