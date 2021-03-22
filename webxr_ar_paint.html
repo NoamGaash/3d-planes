@@ -187,6 +187,10 @@
 						})
 					}, 100);
 				}
+				
+				setTimeout(() => {
+					document.getElementById('aircrafts_menu').scroll(150, 0);
+				}, 100);
 
 				document.getElementById('controls').addEventListener('beforexrselect', ev => ev.preventDefault());
 				document.getElementById('menus').addEventListener('beforexrselect', ev => ev.preventDefault());
