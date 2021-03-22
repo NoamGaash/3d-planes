@@ -738,7 +738,7 @@
 
 			function handleController(controller) {
 				const userData = controller.userData;
-				const zoom = controls.target.distanceTo( controls.object.position )
+				const zoom = controls.target.distanceTo(controls.object.position)
 				cursor.set(0, 0, - zoom).applyMatrix4(camera.matrixWorld);
 				if (userData.isSelecting === true) {
 					if (userData.skipFrames >= 0) {
@@ -922,17 +922,17 @@
 
 			function oclidianDistance([x0, y0, z0], [x1, y1, z1]) {
 				return Math.sqrt(
-					Math.pow(x1 - x0, 2) +
+					Math.pow(sx1 - x0, 2) +
 					Math.pow(y1 - y0, 2) +
 					Math.pow(z1 - z0, 2)
 				)
 			}
 
-			window.finishTutorial = function (stepFinished){
+			window.finishTutorial = function (stepFinished) {
 				stepFinished = Number(stepFinished)
 				document.querySelector('.step-' + stepFinished).style.display = 'none';
-				const nextElem = document.querySelector('.step-' + (stepFinished+1));
-				if(nextElem) {
+				const nextElem = document.querySelector('.step-' + (stepFinished + 1));
+				if (nextElem) {
 					nextElem.style.display = 'block';
 				} else {
 					document.getElementById('tutorial').style.display = 'none'
@@ -940,7 +940,7 @@
 				document.cookie = "tutorial=" + stepFinished + "; expires=Thu, 30 Dec 2021 12:00:00 UTC";
 			}
 
-			if(getCookie('tutorial')) {
+			if (getCookie('tutorial')) {
 				const stepFinished = getCookie('tutorial');
 				document.querySelector('.step-1').style.display = 'none';
 				finishTutorial(stepFinished)
@@ -950,13 +950,13 @@
 				var name = cname + "=";
 				var decodedCookie = decodeURIComponent(document.cookie);
 				var ca = decodedCookie.split(';');
-				for(var i = 0; i <ca.length; i++) {
+				for (var i = 0; i < ca.length; i++) {
 					var c = ca[i];
 					while (c.charAt(0) == ' ') {
-					c = c.substring(1);
+						c = c.substring(1);
 					}
 					if (c.indexOf(name) == 0) {
-					return c.substring(name.length, c.length);
+						return c.substring(name.length, c.length);
 					}
 				}
 				return "";
@@ -975,11 +975,23 @@
 					|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 			}
 
-		// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-		// 	alert("Error occured: " + JSON.stringify({errorMsg, url, lineNumber}));//or any message
-		// 	alert("toError:", window.toError)
-		// 	return false;
-		// }
+			window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+
+				var today = new Date();
+				var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
+				var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+				var dateTime = date + ' ' + time;
+
+				firebase.database().ref('error-logs/ ' + dateTime).set({
+					message: errorMsg,
+					url: url,
+					line_number: lineNumber,
+					user_agent: navigator.userAgent,
+					date: dateTime
+				});
+
+				return false;
+			}
 
 		// var isScrolling;
 		// document.getElementById("aircrafts_menu").addEventListener('scroll', function ( event ) {
