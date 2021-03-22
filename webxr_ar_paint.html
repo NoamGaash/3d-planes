@@ -72,6 +72,38 @@
 					<img class="flip-camera" src="./assets/flip-camera.svg" alt="Flip Camera">
 				</div>
 			</div>
+			<div id="tutorial">
+				<div class="step step-1">
+					<h2>ציירו מסלול במרחב</h2>
+					<p>התחילו ללכת תוך כדי ציור המסלול על גבי המסך</p>
+					<div class="screen-example">
+					</div>
+					<nav>
+						<span class='active'></span><span></span><span></span>
+						<button class='next' onclick="finishTutorial(1)">הבא</button>
+					</nav>
+				</div>
+				<div class="step step-2">
+					<h2>צפו במטוסים על המסלוול</h2>
+					<p>שלום עולם כאן מטוס גדול</p>
+					<div class="screen-example">
+					</div>
+					<nav>
+						<span></span><span class='active'></span><span></span>
+						<button class='next' onclick="finishTutorial(2)">הבא</button>
+					</nav>
+				</div>
+				<div class="step step-3">
+					<h2>ציירו מסלול במרחב</h2>
+					<p>התחילו ללכת תוך כדי ציור המסלול על גבי המסך</p>
+					<div class="screen-example">
+					</div>
+					<nav>
+						<span></span><span></span><span class='active'></span>
+						<button class='next' onclick="finishTutorial(3)">הבא</button>
+					</nav>
+				</div>
+			</div>
 			<!-- <div class="USDZ-container">
         <a rel="ar" href="https://developer.apple.com/augmented-reality/quick-look/models/biplane/toy_biplane.usdz"><img class="image-model" src="https://developer.apple.com/augmented-reality/quick-look/models/biplane/biplane_2x.jpg" alt="" data-hires-status="replaced"></a>
     </div> -->
@@ -685,6 +717,41 @@
 					Math.pow(z1 - z0, 2)
 				)
 			}
+
+			window.finishTutorial = function (stepFinished){
+				stepFinished = Number(stepFinished)
+				document.querySelector('.step-' + stepFinished).style.display = 'none';
+				const nextElem = document.querySelector('.step-' + (stepFinished+1));
+				if(nextElem) {
+					nextElem.style.display = 'block';
+				} else {
+					document.getElementById('tutorial').style.display = 'none'
+				}
+				document.cookie = "tutorial=" + stepFinished + "; expires=Thu, 30 Dec 2021 12:00:00 UTC";
+			}
+
+			if(getCookie('tutorial')) {
+				const stepFinished = getCookie('tutorial');
+				document.querySelector('.step-1').style.display = 'none';
+				finishTutorial(stepFinished)
+			}
+
+			function getCookie(cname) {
+				var name = cname + "=";
+				var decodedCookie = decodeURIComponent(document.cookie);
+				var ca = decodedCookie.split(';');
+				for(var i = 0; i <ca.length; i++) {
+					var c = ca[i];
+					while (c.charAt(0) == ' ') {
+					c = c.substring(1);
+					}
+					if (c.indexOf(name) == 0) {
+					return c.substring(name.length, c.length);
+					}
+				}
+				return "";
+			}
+
 
 		// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 		// 	alert("Error occured: " + JSON.stringify({errorMsg, url, lineNumber}));//or any message

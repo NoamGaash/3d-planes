@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
 body {
   margin: 0;
   background-color: #000;
@@ -409,4 +411,69 @@ canvas {
 .image-model {
   width: 200px;
   border-radius: 10px;
+}
+
+
+
+
+/*********** tutorial **************/
+
+#tutorial {
+  width: 65.8%;
+  padding: 6.3% 6.3% 48px 6.3%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: Heebo;
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 1.18;
+  text-align: center;
+  color: #37474f;
+  z-index: 50;
+  background-color: #eeeeee;
+  border: 1px solid #eff1f1;
+  border-radius: 16px;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.3);
+  direction: rtl;
+}
+
+#tutorial p {
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.29;
+}
+#tutorial .screen-example {
+  height: 337px;
+  background-color: #eeeeee;
+}
+
+#tutorial nav > :not(button) {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  margin: 0 11px;
+  background-color: #d8d8d8;
+}
+
+#tutorial nav > .active {
+  background-color: #8b8b8b;
+}
+
+#tutorial .next {
+  height: 48px;
+  border-radius: 0 0 16px 16px;
+  background-color: #3bb5f2;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border: none;
+}
+
+#tutorial .step-2, #tutorial .step-3 {
+  display: none;
 }
