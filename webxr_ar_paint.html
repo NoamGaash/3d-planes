@@ -131,15 +131,16 @@
 			locations = addMidpoints(locations, 20)
 
 			const AIRCRAFTS_META_DATA = [
-				{ id: "efroni", type: "glb", scale: 0.03, text: "efroni" },
-				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
-				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
-				// { id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
 				// { id: "yasur", type: "glb", scale: 0.000007, text: "yasur" },
-				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
-				{ id: "karnaf", type: "glb", scale: 0.035, text: "karnaf" },
+				// { id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
 				// { id: "aero", type: "glb", scale: 0.005, text: "aero" },
 				// { id: "rafael", type: "gltf", scale: 0.005, text: "f99" }
+				{ id: "efroni", type: "glb", scale: 0.03, text: "efroni" },
+				{ id: "tsofit", type: "glb", scale: 0.2, text: "tsofit" },
+				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
+				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
+				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
+				{ id: "karnaf", type: "glb", scale: 0.25, text: "karnaf" },
 			]
 
 			const TRAILS_META_DATA = [
@@ -149,19 +150,19 @@
 				// { id: "moustache", type: "glb", scale: 0.05, text: "moustache" },
 				// { id: "crown", type: "glb", scale: 0.01, text: "crown" },
 				// { id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
-				{ id: "heart", type: "glb", scale: 0.005, text: "Red heart" },
-				{ id: "blue", type: "obj", scale: 0.0001, text: "david" },
 				// { id: "cheeseburger", type: "glb", scale: 0.07, text: "cheeseburger" },
 				// { id: "happyface", type: "glb", scale: 0.5, text: "Happy Face" },
-				{ id: "love", type: "glb", scale: 0.5, text: "Heart Eyes Face" },
 				// { id: "poo", type: "glb", scale: 0.5, text: "poo" },
-				{ id: "star", type: "glb", scale: 0.05, text: "star" },
-				{ id: "doughnut", type: "glb", scale: 0.09, text: "doughnut" },
 				// { id: "disco", type: "glb", scale: 0.009, text: "Disco Ball" },
-				{ id: "beachball", type: "glb", scale: 0.25, text: "Beach Ball" },
 				// { id: "basketball", type: "glb", scale: 0.025, text: "Basketball" },
 				// { id: "cake", type: "glb", scale: 0.04, text: "cake" },
 				// { id: "present", type: "glb", scale: 0.09, text: "present" },
+				{ id: "heart", type: "glb", scale: 0.005, text: "Red heart" },
+				{ id: "blue", type: "obj", scale: 0.0001, text: "david" },
+				{ id: "love", type: "glb", scale: 0.5, text: "Heart Eyes Face" },
+				{ id: "star", type: "glb", scale: 0.05, text: "star" },
+				{ id: "doughnut", type: "glb", scale: 0.09, text: "doughnut" },
+				{ id: "beachball", type: "glb", scale: 0.25, text: "Beach Ball" },
 			]
 
 			init();
@@ -383,7 +384,7 @@
 					}
 				})
 
-				changeAircraft(AIRCRAFTS_META_DATA[0]);
+				changeAircraft(AIRCRAFTS_META_DATA[2]);
 				loadLight();
 				loadPainter();
 				loadController();
