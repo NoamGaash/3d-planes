@@ -98,32 +98,32 @@ class ARButton {
 
 			};
 
-			button.onclick = function () {
-				debugger
-				if ( currentSession === null ) {
-
-					navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
-
-				} else {
-
-					currentSession.end();
-
-				}
-
-			};
-
 			// button.onclick = function () {
 			// 	debugger
 			// 	if ( currentSession === null ) {
-			// 	navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted);}
+
+			// 		navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
+
+			// 	} else {
+
+			// 		currentSession.end();
+
+			// 	}
 
 			// };
 
-			// sessionInit.closebutton.onclick = function () {
+			button.onclick = function () {
+				debugger
+				if ( currentSession === null ) {
+				navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted);}
 
-			// 	currentSession.end();
+			};
 
-			// };
+			sessionInit.closebutton.onclick = function () {
+
+				currentSession.end();
+
+			};
 
 
 		}
