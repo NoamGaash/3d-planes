@@ -641,15 +641,12 @@
 			}
 
 			function animate() {
+				let render;
+				render = isIOS() ? renderIOS : renderRest;
 				renderer.setAnimationLoop(render);
 			}
 
-			function render() {
-				handleController(controller);
-				if (aircraft) {
-					placeAircraft();
-				}
-
+			function renderEnvironment() {
 				planeMesh.material.roughness = params.roughness;
 				planeMesh.material.metalness = params.metalness;
 
@@ -684,7 +681,23 @@
 
 				scene.background = background;
 				renderer.toneMappingExposure = params.exposure;
+			}
 
+			function renderAircraft() {
+				handleController(controller);
+				if (aircraft) {
+					placeAircraft();
+				}
+			}
+
+			function renderIOS() {
+				renderEnvironment();
+				renderAircraft();
+				renderer.render(scene, camera);
+			}
+
+			function renderRest() {
+				renderAircraft();
 				renderer.render(scene, camera);
 			}
 
@@ -786,6 +799,19 @@
 					Math.pow(y1 - y0, 2) +
 					Math.pow(z1 - z0, 2)
 				)
+			}
+
+			function isIOS() {
+				return [
+					'iPad Simulator',
+					'iPhone Simulator',
+					'iPod Simulator',
+					'iPad',
+					'iPhone',
+					'iPod'
+				].includes(navigator.platform)
+					// iPad on iOS 13 detection
+					|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 			}
 
 		// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
