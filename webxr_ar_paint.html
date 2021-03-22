@@ -12,10 +12,8 @@
 </head>
 
 <body>
-	<div id="camrea">
-		<div class="camera">
-			<video id="video">Video stream not available.</video>
-		</div>
+	<div class="camera">
+		<video id="video">Video stream not available.</video>
 	</div>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
@@ -301,9 +299,43 @@
 				// 				stream.getTracks().forEach(function(track) {
 				// 					track.stop();
 				// 				});
-				function startup() {
+				async function startup() {
 					video = document.getElementById('video');
-					navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+
+
+					// get the rear camera
+					const devices = await navigator.mediaDevices.enumerateDevices();
+					let frontDeviceId;
+					let backDeviceId;
+
+					if (devices.length > 0) {
+						// defaults so all this will work on a desktop
+						frontDeviceId = devices[0].deviceId;
+						backDeviceId = devices[0].deviceId;
+					}
+
+					devices.forEach(device => {
+						if (device.kind === 'videoinput') {
+							if (device.label && device.label.length > 0) {
+								if (device.label.toLowerCase().indexOf('back') >= 0)
+									backDeviceId = device.deviceId
+								else if (device.label.toLowerCase().indexOf('front') >= 0)
+									frontDeviceId = device.deviceId
+							}
+						}
+					});
+
+					const constraints = {
+						audio: false, video: {
+							width: screen.height,
+							height: screen.width,
+							deviceId: { exact: backDeviceId }
+						}
+					};
+
+					// get the stream
+
+					navigator.mediaDevices.getUserMedia(constraints)
 						.then(function (stream) {
 							video.srcObject = stream;
 							video.play();
@@ -652,6 +684,7 @@
 
 				scene.background = background;
 				renderer.toneMappingExposure = params.exposure;
+
 				renderer.render(scene, camera);
 			}
 
