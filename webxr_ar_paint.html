@@ -178,11 +178,11 @@
 					clearInterval(isAircraftScrolling);
 					isAircraftScrolling = setTimeout(() => {
 						const centeredElement = document.elementFromPoint(
-							document.body.offsetWidth / 2, document.body.offsetHeight + 710
+							document.body.offsetWidth / 2, document.documentElement.clientHeight - 90
 						);
-						let selected = centeredElement.parentElement.innerHTML.match(`(?<=assets\/)(.*)(?=\.png)`)[0];
+						let selected = centeredElement.parentElement.innerHTML.replace('<img src="./assets/', '').replace('.png">', '');
 						AIRCRAFTS_META_DATA.forEach((e) => {
-							if (e.id === selected) changeAircraft(e);
+							if (e.id === selected) { console.log(e); changeAircraft(e); }
 						})
 					}, 100);
 				}
