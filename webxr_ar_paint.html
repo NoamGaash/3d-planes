@@ -12,10 +12,8 @@
 </head>
 
 <body>
-	<div id="camrea">
-		<div class="camera">
-			<video id="video">Video stream not available.</video>
-		</div>
+	<div class="camera">
+		<video id="video">Video stream not available.</video>
 	</div>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
@@ -130,7 +128,8 @@
 
 			let container, stats;
 			let camera, controls, scene, renderer;
-			let controller, painter, aircraft;
+			let mixer, clock, action, delta;
+			let controller, painter, aircraft, animations;
 			let animationCycleStart = new Date();
 			let trails = [];
 			let planeMesh;
@@ -170,7 +169,7 @@
 				// { id: "aero", type: "glb", scale: 0.005, text: "aero" },
 				// { id: "rafael", type: "gltf", scale: 0.005, text: "f99" }
 				{ id: "efroni", type: "glb", scale: 0.03, text: "efroni" },
-				{ id: "tsofit", type: "glb", scale: 0.2, text: "tsofit" },
+				// { id: "tsofit", type: "glb", scale: 0.2, text: "tsofit" },
 				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
 				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
 				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
@@ -266,6 +265,9 @@
 				})
 
 				scene = new THREE.Scene();
+
+				clock = new THREE.Clock();
+
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 				camera.position.set(.2, .06, 0);
 
@@ -358,10 +360,44 @@
 				// 				stream.getTracks().forEach(function(track) {
 				// 					track.stop();
 				// 				});
-				function startup() {
+				async function startup() {
 					video = document.getElementById('video');
 					const getUserMedia = (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 					getUserMedia({ video: true, audio: false })
+
+					// get the rear camera
+					const devices = await navigator.mediaDevices.enumerateDevices();
+					let frontDeviceId;
+					let backDeviceId;
+
+					if (devices.length > 0) {
+						// defaults so all this will work on a desktop
+						frontDeviceId = devices[0].deviceId;
+						backDeviceId = devices[0].deviceId;
+					}
+
+					devices.forEach(device => {
+						if (device.kind === 'videoinput') {
+							if (device.label && device.label.length > 0) {
+								if (device.label.toLowerCase().indexOf('back') >= 0)
+									backDeviceId = device.deviceId
+								else if (device.label.toLowerCase().indexOf('front') >= 0)
+									frontDeviceId = device.deviceId
+							}
+						}
+					});
+
+					const constraints = {
+						audio: false, video: {
+							width: screen.height,
+							height: screen.width,
+							deviceId: { exact: backDeviceId }
+						}
+					};
+
+					// get the stream
+
+					navigator.mediaDevices.getUserMedia(constraints)
 						.then(function (stream) {
 							video.srcObject = stream;
 							video.play();
@@ -533,9 +569,18 @@
 						if (aircraft)
 							scene.remove(aircraft);
 						aircraft = gltf.scene;
+						animations = gltf.animations;
 						const scale = selectedAircraft.scale;
 						aircraft.scale.set(scale, scale, scale);
 						scene.add(aircraft);
+
+						mixer = new THREE.AnimationMixer(aircraft);
+
+						animations.forEach(animation => {
+							action = mixer.clipAction(animation);
+							action.play();
+						});
+
 					}, undefined, function (error) {
 						console.error(error);
 					});
@@ -709,15 +754,12 @@
 			}
 
 			function animate() {
+				let render;
+				render = isIOS() ? iosRender : baseRender;
 				renderer.setAnimationLoop(render);
 			}
 
-			function render() {
-				handleController(controller);
-				if (aircraft) {
-					placeAircraft();
-				}
-
+			function renderEnvironment() {
 				planeMesh.material.roughness = params.roughness;
 				planeMesh.material.metalness = params.metalness;
 
@@ -752,7 +794,32 @@
 
 				scene.background = background;
 				renderer.toneMappingExposure = params.exposure;
+			}
+
+			function renderAircraft() {
+
+				handleController(controller);
+				if (aircraft) {
+					placeAircraft();
+				}
+			}
+
+			function renderAnimations() {
+				delta = clock.getDelta();
+				if (mixer) {
+					mixer.update(delta);
+				}
+			}
+
+			function baseRender() {
+				renderAircraft();
+				renderAnimations();
 				renderer.render(scene, camera);
+			}
+
+			function iosRender() {
+				renderEnvironment();
+				baseRender();
 			}
 
 			function placeAircraft() {
@@ -894,6 +961,18 @@
 				return "";
 			}
 
+			function isIOS() {
+				return [
+					'iPad Simulator',
+					'iPhone Simulator',
+					'iPod Simulator',
+					'iPad',
+					'iPhone',
+					'iPod'
+				].includes(navigator.platform)
+					// iPad on iOS 13 detection
+					|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+			}
 
 		// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 		// 	alert("Error occured: " + JSON.stringify({errorMsg, url, lineNumber}));//or any message
