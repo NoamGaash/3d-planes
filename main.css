@@ -369,7 +369,7 @@ canvas {
 }
 
 #trails_menu {
-  width: 100%;
+  width: 80%;
   overflow: scroll;
   display: flex;
   align-items: center;
@@ -431,6 +431,9 @@ div #resetbutton.trails_menu_hide {
   left: 0;
   right: 0;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #settings_menu {
