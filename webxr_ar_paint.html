@@ -63,6 +63,7 @@
 				</div>
 
 				<div id="settings_menu">
+					<div class="middleCircle"></div>
 					<div style="width: 40px;"></div>
 					<div class="mode-menu">
 						<div>GIF</div>
@@ -197,7 +198,7 @@
 					elem.id = aircraft.id;
 					elem.innerHTML = `<img src="./assets/${aircraft.text}.png"/>`;
 					document.getElementById('aircrafts_menu').insertBefore(elem, document.getElementById('aircrafts_menu').children[1]);
-					
+					elem.addEventListener('click', () => changeAircraft(aircraft))
 				})
 
 				TRAILS_META_DATA.forEach(trail => {
