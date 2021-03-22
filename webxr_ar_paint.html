@@ -90,7 +90,8 @@
 
 			let container, stats;
 			let camera, controls, scene, renderer;
-			let controller, painter, aircraft;
+			let mixer, clock, action, delta;
+			let controller, painter, aircraft, animations;
 			let animationCycleStart = new Date();
 			let trails = [];
 			let planeMesh;
@@ -125,6 +126,7 @@
 			locations = addMidpoints(locations, 20)
 
 			const AIRCRAFTS_META_DATA = [
+				{ id: "efroni", type: "glb", scale: 0.03, text: "efroni" },
 				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
 				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
 				{ id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
@@ -208,6 +210,9 @@
 				})
 
 				scene = new THREE.Scene();
+
+				clock = new THREE.Clock();
+
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 				camera.position.set(.1, .03, 0);
 
@@ -465,9 +470,18 @@
 						if (aircraft)
 							scene.remove(aircraft);
 						aircraft = gltf.scene;
+						animations = gltf.animations;
 						const scale = selectedAircraft.scale;
 						aircraft.scale.set(scale, scale, scale);
 						scene.add(aircraft);
+
+						mixer = new THREE.AnimationMixer(aircraft);
+
+						animations.forEach(animation => {
+							action = mixer.clipAction(animation);
+							action.play();
+						});
+
 					}, undefined, function (error) {
 						console.error(error);
 					});
@@ -642,7 +656,7 @@
 
 			function animate() {
 				let render;
-				render = isIOS() ? renderIOS : renderRest;
+				render = isIOS() ? iosRender : baseRender;
 				renderer.setAnimationLoop(render);
 			}
 
@@ -684,21 +698,29 @@
 			}
 
 			function renderAircraft() {
+
 				handleController(controller);
 				if (aircraft) {
 					placeAircraft();
 				}
 			}
 
-			function renderIOS() {
-				renderEnvironment();
+			function renderAnimations() {
+				delta = clock.getDelta();
+				if (mixer) {
+					mixer.update(delta);
+				}
+			}
+
+			function baseRender() {
 				renderAircraft();
+				renderAnimations();
 				renderer.render(scene, camera);
 			}
 
-			function renderRest() {
-				renderAircraft();
-				renderer.render(scene, camera);
+			function iosRender() {
+				renderEnvironment();
+				baseRender();
 			}
 
 			function placeAircraft() {
