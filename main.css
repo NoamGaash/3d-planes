@@ -162,12 +162,42 @@ select {
 }
 #controls #button-mode-toggle {
   color: white;
+  width: 130px;
+  position: relative;
 }
-#controls #button-mode-toggle.dynamic::after {
-  content: 'dynamic'
+
+#controls #button-mode-toggle > * {
+  display: inline-block;
+  width: 48px;
+  height: 35px;
+  background-repeat: no-repeat;
 }
+
+#controls #button-mode-toggle .dynamic-mode {
+  background-image: url(./assets/dynamic-mode.svg);
+}
+#controls #button-mode-toggle .static-mode {
+  background-image: url(./assets/static-mode.svg);
+}
+
+#controls #button-mode-toggle::after {
+  content: '';
+  width: 54.5px;
+  height: 3px;
+  background-color: lightblue;
+  display: block;
+  position: absolute;
+  right: 0;
+  transition: all 0.2s;
+}
+
+#controls #button-mode-toggle:focus {
+  outline: none;
+}
+
 #controls #button-mode-toggle.static::after {
-  content: 'static'
+  right: 100%;
+  transform: translateX(100%);
 }
 
 .tool-button {
@@ -320,8 +350,6 @@ canvas {
 }
 
 .aircraft-option.selected {
-  height: 70px;
-  width: 70px;
   background-color: #ffffff;
 }
 
