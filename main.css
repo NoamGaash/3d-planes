@@ -362,6 +362,16 @@ canvas {
   scroll-snap-type: inline mandatory;
 }
 
+div #trails_menu.trails_menu_hide{
+  display:  none;
+}
+
+div #resetbutton.trails_menu_hide {
+  
+  visibility: hidden;
+ 
+}
+
 #trails_menu img {
   display: inline-block;
   width: 22px;

@@ -45,7 +45,9 @@
 	<body>
 		<div id="ar-overly">
 			<div id="controls">
-				<button id="button-reset" alt="Draw"></body>
+				<div id="resetbutton">
+					<button id="button-reset" alt="Draw"></button>
+				</div>
 				<!-- <button id="button-action" alt="Toggle Flash"></button> -->
 				<button id="button-mode-toggle" alt="Toggle mode" class="dynamic">
 					<span class='static-mode'></span>
@@ -56,7 +58,7 @@
 			<div id="menus">
 				<div id="trails_menu">
 					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
-					<img class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
+					<img id="exit-trail" class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
 					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
 				</div>
 
@@ -224,7 +226,7 @@
 			function init() {
 
 				// Detect filter change
-				let isAircraftScrolling = setTimeout(() => {}, 0);
+				let isAircraftScrolling = setTimeout(() => { }, 0);
 				document.getElementById('aircrafts_menu').onscroll = () => {
 					clearInterval(isAircraftScrolling);
 					isAircraftScrolling = setTimeout(() => {
@@ -248,7 +250,7 @@
 					elem.id = aircraft.id;
 					elem.innerHTML = `<img src="./assets/${aircraft.text}.png"/>`;
 					document.getElementById('aircrafts_menu').insertBefore(elem, document.getElementById('aircrafts_menu').children[1]);
-					
+
 				})
 
 				TRAILS_META_DATA.forEach(trail => {
@@ -334,7 +336,8 @@
 				const arButton = ARButton.createButton(renderer, {
 					optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
 					domOverlay: { root: document.getElementById("ar-overly") },
-					endSessionCallback: startup
+					// endSessionCallback: startup,
+					closebutton: document.getElementById("button-close")
 				});
 
 				document.body.appendChild(arButton);
@@ -357,7 +360,7 @@
 				// 				});
 				function startup() {
 					video = document.getElementById('video');
-					const getUserMedia = ( navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+					const getUserMedia = (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 					getUserMedia({ video: true, audio: false })
 						.then(function (stream) {
 							video.srcObject = stream;
@@ -395,20 +398,33 @@
 					resetScene();
 				})
 
-				document.getElementById("button-close").addEventListener("click", (e) => {
-					resetScene();
+				// document.getElementById("button-close").addEventListener("click", (e) => {
+				// 	closeScene();
+				// })
+
+				document.getElementById("exit-trail").addEventListener("click", (e) => {
+					resetTrail();
 				})
-				document.getElementById('button-mode-toggle').addEventListener("click", function() {
-					if(mode =='static') {
+
+				document.getElementById('button-mode-toggle').addEventListener("click", function () {
+					if (mode == 'static') {
 						mode = 'dynamic';
 						this.classList.add('dynamic');
 						this.classList.remove('static');
-						if(locations.length) locations.pop();
+						let trails_menu = document.getElementById("trails_menu");
+						trails_menu.classList.remove('trails_menu_hide');
+						let buttonreset = document.getElementById("resetbutton");
+						buttonreset.classList.remove('trails_menu_hide');
+						if (locations.length) locations.pop();
 						painter.mesh.material.opacity = 0.3;
 					} else {
 						mode = 'static'
 						this.classList.add('static');
 						this.classList.remove('dynamic');
+						let trails_menu = document.getElementById("trails_menu");
+						trails_menu.classList.add('trails_menu_hide');
+						let buttonreset = document.getElementById("resetbutton");
+						buttonreset.classList.add('trails_menu_hide');
 						locations.push([cursor.x, cursor.y, cursor.z]);
 						painter.mesh.material.opacity = 0;
 						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
@@ -469,6 +485,18 @@
 				locations = [];
 				scene.remove(painter.mesh);
 				loadPainter();
+			}
+
+			function closeScene() {
+				let newWindow = window.open("about:blank");
+				window.close();
+			}
+
+			function resetTrail() {
+				TRAILS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
+				scene.remove(trails);
+				trails.forEach(trail => { scene.remove(trail) });
+				trails = [];
 			}
 
 			function loadController() {
@@ -736,7 +764,7 @@
 				} else if (locations.length === 1)
 					aircraft?.position.set(...locations[0])
 				else {
-					if(mode == 'dynamic') {
+					if (mode == 'dynamic') {
 						const smoothLocations = smooth(addMidpoints(locations, 8));
 						const currentTravelPercent = getCurrentTravelPercent();
 						//document.getElementById("button-reset").innerHTML = (currentTravelPercent*100).toFixed(2);

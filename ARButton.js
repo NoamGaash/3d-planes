@@ -63,9 +63,9 @@ class ARButton {
 
 			function onSessionEnded( /*event*/ ) {
 
-				if(sessionInit.endSessionCallback) {
-					sessionInit.endSessionCallback()
-				}
+				// if(sessionInit.endSessionCallback) {
+				// 	sessionInit.endSessionCallback()
+				// }
 
 				currentSession.removeEventListener( 'end', onSessionEnded );
 
@@ -98,19 +98,33 @@ class ARButton {
 
 			};
 
+			// button.onclick = function () {
+			// 	debugger
+			// 	if ( currentSession === null ) {
+
+			// 		navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
+
+			// 	} else {
+
+			// 		currentSession.end();
+
+			// 	}
+
+			// };
+
 			button.onclick = function () {
 				debugger
 				if ( currentSession === null ) {
-
-					navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
-
-				} else {
-
-					currentSession.end();
-
-				}
+				navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted);}
 
 			};
+
+			sessionInit.closebutton.onclick = function () {
+
+				currentSession.end();
+
+			};
+
 
 		}
 
