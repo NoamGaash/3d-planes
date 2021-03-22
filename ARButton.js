@@ -69,7 +69,7 @@ class ARButton {
 
 				currentSession.removeEventListener( 'end', onSessionEnded );
 
-				button.textContent = 'START AR';
+				button.textContent = 'תלת מימד';
 				sessionInit.domOverlay.root.style.display = 'none';
 
 				currentSession = null;
@@ -84,7 +84,7 @@ class ARButton {
 			button.style.left = 'calc(50% - 50px)';
 			button.style.width = '100px';
 
-			button.textContent = 'START AR';
+			button.textContent = 'תלת מימד';
 
 			button.onmouseenter = function () {
 
