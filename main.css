@@ -16,6 +16,10 @@ body {
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
+.buffer {
+  min-width: calc(50vw - 30px);
+}
+
 /*hide scrollbar on mobile*/
 ::-webkit-scrollbar {
   display: none;
@@ -364,12 +368,12 @@ canvas {
   width: 55px;
   height: 55px;
   position: absolute;
-  left: calc(50% - 32px);
-  bottom: 49px;
+  left: calc(50% - 31.5px);
+  bottom: 48.5px;
 }
 
 #trails_menu {
-  width: 80%;
+  width: 100%;
   overflow: scroll;
   display: flex;
   align-items: center;
