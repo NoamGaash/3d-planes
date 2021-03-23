@@ -194,7 +194,7 @@ class ARButton {
 
 			} else {
 
-				message.href = 'https://immersiveweb.dev/';
+				// message.href = 'https://immersiveweb.dev/';
 				message.innerHTML = 'WEBXR NOT AVAILABLE';
 
 			}
