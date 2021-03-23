@@ -55,9 +55,9 @@
 			</div>
 			<div id="menus">
 				<div id="trails_menu">
-					<!-- <div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div> -->
+					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
 					<img id="exit-trail" class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
-					<!-- <div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div> -->
+					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
 				</div>
 
 				<div id="aircrafts_menu">
@@ -123,7 +123,7 @@
 			import { MTLLoader } from './node_modules/three/examples/jsm/loaders/MTLLoader.js';
 			import { OBJLoader } from './node_modules/three/examples/jsm/loaders/OBJLoader.js';
 			import { OrbitControls } from "./node_modules/three/examples/jsm/controls/OrbitControls.js";
-
+ 
 			import { EXRLoader } from './node_modules/three/examples/jsm/loaders/EXRLoader.js';
 
 
@@ -233,6 +233,9 @@
 						const centeredElement = document.elementFromPoint(
 							document.body.offsetWidth / 2, document.documentElement.clientHeight - 90
 						);
+
+						console.log(centeredElement);
+
 						let selected = centeredElement.parentElement.innerHTML.replace('<img src="./assets/', '').replace('.png">', '');
 						AIRCRAFTS_META_DATA.forEach((e) => {
 							if (e.id === selected) { console.log(e); changeAircraft(e); }
