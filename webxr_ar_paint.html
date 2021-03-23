@@ -12,10 +12,8 @@
 </head>
 
 <body>
-	<div id="camrea">
-		<div class="camera">
-			<video id="video">Video stream not available.</video>
-		</div>
+	<div class="camera">
+		<video id="video">Video stream not available.</video>
 	</div>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
@@ -45,16 +43,21 @@
 	<body>
 		<div id="ar-overly">
 			<div id="controls">
-				<button id="button-reset" alt="Draw"></body>
-				<button id="button-action" alt="Toggle Flash"></button>
-				<button id="button-mode-toggle" alt="Toggle mode" class="dynamic"></button>
+				<div id="resetbutton">
+					<button id="button-reset" alt="Draw"></button>
+				</div>
+				<!-- <button id="button-action" alt="Toggle Flash"></button> -->
+				<button id="button-mode-toggle" alt="Toggle mode" class="dynamic">
+					<span class='static-mode'></span>
+					<span class='dynamic-mode'></span>
+				</button>
 				<button id="button-close" alt="Close"></button>
 			</div>
 			<div id="menus">
 				<div id="trails_menu">
-					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
-					<img class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
-					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
+					<!-- <div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div> -->
+					<img id="exit-trail" class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
+					<!-- <div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div> -->
 				</div>
 
 				<div id="aircrafts_menu">
@@ -65,12 +68,44 @@
 				<div id="settings_menu">
 					<div class="middleCircle"></div>
 					<div style="width: 40px;"></div>
-					<div class="mode-menu">
+					<!-- <div class="mode-menu">
 						<div>GIF</div>
 						<div class="selected">תמונה</div>
 						<div>סרטון</div>
 					</div>
-					<img class="flip-camera" src="./assets/flip-camera.svg" alt="Flip Camera">
+					<img class="flip-camera" src="./assets/flip-camera.svg" alt="Flip Camera"> -->
+				</div>
+			</div>
+			<div id="tutorial">
+				<div class="step step-1">
+					<h2>ציירו מסלול במרחב</h2>
+					<p>התחילו ללכת תוך כדי ציור המסלול על גבי המסך</p>
+					<div class="screen-example">
+					</div>
+					<nav>
+						<span class='active'></span><span></span><span></span>
+						<button class='next' onclick="finishTutorial(1)">הבא</button>
+					</nav>
+				</div>
+				<div class="step step-2">
+					<h2>צפו במטוסים על המסלוול</h2>
+					<p>שלום עולם כאן מטוס גדול</p>
+					<div class="screen-example">
+					</div>
+					<nav>
+						<span></span><span class='active'></span><span></span>
+						<button class='next' onclick="finishTutorial(2)">הבא</button>
+					</nav>
+				</div>
+				<div class="step step-3">
+					<h2>ציירו מסלול במרחב</h2>
+					<p>התחילו ללכת תוך כדי ציור המסלול על גבי המסך</p>
+					<div class="screen-example">
+					</div>
+					<nav>
+						<span></span><span></span><span class='active'></span>
+						<button class='next' onclick="finishTutorial(3)">הבא</button>
+					</nav>
 				</div>
 			</div>
 			<!-- <div class="USDZ-container">
@@ -89,12 +124,27 @@
 			import { OBJLoader } from './node_modules/three/examples/jsm/loaders/OBJLoader.js';
 			import { OrbitControls } from "./node_modules/three/examples/jsm/controls/OrbitControls.js";
 
-			let container;
+			import { EXRLoader } from './node_modules/three/examples/jsm/loaders/EXRLoader.js';
+
+
+			let container, stats;
 			let camera, controls, scene, renderer;
-			let controller, painter, aircraft;
+			let mixer, clock, action, delta;
+			let controller, painter, aircraft, animations;
 			let animationCycleStart = new Date();
 			let trails = [];
+			let planeMesh;
+			let pngCubeRenderTarget, exrCubeRenderTarget;
+			let pngBackground, exrBackground;
 			const cursor = new THREE.Vector3();
+
+			const params = {
+				envMap: 'EXR',
+				roughness: 0.0,
+				metalness: 0.0,
+				exposure: 1.5,
+				debug: false,
+			};
 
 			let locations = [
 				// top triangle
@@ -115,14 +165,16 @@
 			locations = addMidpoints(locations, 20)
 
 			const AIRCRAFTS_META_DATA = [
-				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
-				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
-				{ id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
-				{ id: "yasur", type: "glb", scale: 0.000007, text: "yasur" },
-				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
-				{ id: "efroni", type: "glb", scale: 0.000007, text: "efroni" },
+				// { id: "yasur", type: "glb", scale: 0.000007, text: "yasur" },
+				// { id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
 				// { id: "aero", type: "glb", scale: 0.005, text: "aero" },
 				// { id: "rafael", type: "gltf", scale: 0.005, text: "f99" }
+				{ id: "efroni", type: "glb", scale: 0.03, text: "efroni" },
+				// { id: "tsofit", type: "glb", scale: 0.2, text: "tsofit" },
+				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
+				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
+				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
+				{ id: "karnaf", type: "glb", scale: 0.035, text: "karnaf" },
 			]
 
 			const TRAILS_META_DATA = [
@@ -132,19 +184,19 @@
 				// { id: "moustache", type: "glb", scale: 0.05, text: "moustache" },
 				// { id: "crown", type: "glb", scale: 0.01, text: "crown" },
 				// { id: "cloud", type: "glb", scale: 0.12, text: "cloud" },
-				{ id: "heart", type: "glb", scale: 0.005, text: "Red heart" },
-				{ id: "blue", type: "obj", scale: 0.0001, text: "david" },
 				// { id: "cheeseburger", type: "glb", scale: 0.07, text: "cheeseburger" },
 				// { id: "happyface", type: "glb", scale: 0.5, text: "Happy Face" },
-				{ id: "love", type: "glb", scale: 0.5, text: "Heart Eyes Face" },
 				// { id: "poo", type: "glb", scale: 0.5, text: "poo" },
-				{ id: "star", type: "glb", scale: 0.05, text: "star" },
-				{ id: "doughnut", type: "glb", scale: 0.09, text: "doughnut" },
 				// { id: "disco", type: "glb", scale: 0.009, text: "Disco Ball" },
-				{ id: "beachball", type: "glb", scale: 0.25, text: "Beach Ball" },
 				// { id: "basketball", type: "glb", scale: 0.025, text: "Basketball" },
 				// { id: "cake", type: "glb", scale: 0.04, text: "cake" },
 				// { id: "present", type: "glb", scale: 0.09, text: "present" },
+				{ id: "heart", type: "glb", scale: 0.005, text: "Red heart" },
+				{ id: "blue", type: "obj", scale: 0.0001, text: "david" },
+				{ id: "love", type: "glb", scale: 0.5, text: "Heart Eyes Face" },
+				{ id: "star", type: "glb", scale: 0.05, text: "star" },
+				{ id: "doughnut", type: "glb", scale: 0.09, text: "doughnut" },
+				{ id: "beachball", type: "glb", scale: 0.25, text: "Beach Ball" },
 			]
 
 			init();
@@ -174,7 +226,7 @@
 			function init() {
 
 				// Detect filter change
-				let isAircraftScrolling = setTimeout(() => {}, 0);
+				let isAircraftScrolling = setTimeout(() => { }, 0);
 				document.getElementById('aircrafts_menu').onscroll = () => {
 					clearInterval(isAircraftScrolling);
 					isAircraftScrolling = setTimeout(() => {
@@ -228,8 +280,10 @@
 					})
 				})
 
-
 				scene = new THREE.Scene();
+
+				clock = new THREE.Clock();
+
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 				camera.position.set(.2, .06, 0);
 
@@ -237,9 +291,61 @@
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				renderer.xr.enabled = true;
+
+				// environment
+				let material = new THREE.MeshStandardMaterial({
+					metalness: params.roughness,
+					roughness: params.metalness,
+					envMapIntensity: 1.0
+				});
+
+				let geometry = new THREE.PlaneGeometry(200, 200);
+
+				material = new THREE.MeshBasicMaterial();
+
+				planeMesh = new THREE.Mesh(geometry, material);
+				planeMesh.position.y = - 50;
+				planeMesh.rotation.x = - Math.PI * 0.5;
+				scene.add(planeMesh);
+
+				THREE.DefaultLoadingManager.onLoad = function () {
+
+					pmremGenerator.dispose();
+
+				};
+
+				new EXRLoader()
+					.setDataType(THREE.UnsignedByteType)
+					.load('assets/textures/compressed.exr', function (texture) {
+
+						exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+						exrBackground = exrCubeRenderTarget.texture;
+
+						texture.dispose();
+
+					});
+
+				new THREE.TextureLoader().load('assets/textures/equirectangular.png', function (texture) {
+
+					texture.encoding = THREE.sRGBEncoding;
+
+					pngCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+
+					pngBackground = pngCubeRenderTarget.texture;
+
+					texture.dispose();
+
+				});
+
+				const pmremGenerator = new THREE.PMREMGenerator(renderer);
+				pmremGenerator.compileEquirectangularShader();
+
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.outputEncoding = THREE.sRGBEncoding;
+
 				// controls
 				controls = new OrbitControls(camera, renderer.domElement);
-				controls.listenToKeyEvents(window); // optional
+				controls.listenToKeyEvents(window); // optionalz
 
 				container = document.createElement('div');
 				document.body.appendChild(container);
@@ -248,7 +354,8 @@
 				const arButton = ARButton.createButton(renderer, {
 					optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
 					domOverlay: { root: document.getElementById("ar-overly") },
-					endSessionCallback: startup
+					// endSessionCallback: startup,
+					closebutton: document.getElementById("button-close")
 				});
 
 				document.body.appendChild(arButton);
@@ -269,10 +376,44 @@
 				// 				stream.getTracks().forEach(function(track) {
 				// 					track.stop();
 				// 				});
-				function startup() {
-					video = document.getElementById('video');
-					const getUserMedia = ( navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+				async function startup() {
+					/*video = document.getElementById('video');
+					const getUserMedia = (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 					getUserMedia({ video: true, audio: false })
+
+					// get the rear camera
+					const devices = await navigator.mediaDevices.enumerateDevices();
+					let frontDeviceId;
+					let backDeviceId;
+
+					if (devices.length > 0) {
+						// defaults so all this will work on a desktop
+						frontDeviceId = devices[0].deviceId;
+						backDeviceId = devices[0].deviceId;
+					}
+
+					devices.forEach(device => {
+						if (device.kind === 'videoinput') {
+							if (device.label && device.label.length > 0) {
+								if (device.label.toLowerCase().indexOf('back') >= 0)
+									backDeviceId = device.deviceId
+								else if (device.label.toLowerCase().indexOf('front') >= 0)
+									frontDeviceId = device.deviceId
+							}
+						}
+					});
+
+					const constraints = {
+						audio: false, video: {
+							width: screen.height,
+							height: screen.width,
+							deviceId: { exact: backDeviceId }
+						}
+					};
+
+					// get the stream
+
+					navigator.mediaDevices.getUserMedia(constraints)
 						.then(function (stream) {
 							video.srcObject = stream;
 							video.play();
@@ -298,39 +439,53 @@
 							streaming = true;
 						}
 					}, false);
+					*/
 				}
 				// model
 
-				document.getElementById("button-action").addEventListener("click", (e) => {
+				/*document.getElementById("button-action").addEventListener("click", (e) => {
 					takeScreenshot();
-				})
+				})*/
 
 				document.getElementById("button-reset").addEventListener("click", (e) => {
 					resetScene();
 				})
 
-				document.getElementById("button-close").addEventListener("click", (e) => {
-					resetScene();
+				// document.getElementById("button-close").addEventListener("click", (e) => {
+				// 	closeScene();
+				// })
+
+				document.getElementById("exit-trail").addEventListener("click", (e) => {
+					resetTrail();
 				})
-				document.getElementById('button-mode-toggle').addEventListener("click", function() {
-					if(mode =='static') {
+
+				document.getElementById('button-mode-toggle').addEventListener("click", function () {
+					if (mode == 'static') {
 						mode = 'dynamic';
 						this.classList.add('dynamic');
 						this.classList.remove('static');
-						if(locations.length) locations.pop();
+						let trails_menu = document.getElementById("trails_menu");
+						trails_menu.classList.remove('trails_menu_hide');
+						let buttonreset = document.getElementById("resetbutton");
+						buttonreset.classList.remove('trails_menu_hide');
+						if (locations.length) locations.pop();
 						painter.mesh.material.opacity = 0.3;
 					} else {
 						mode = 'static'
 						this.classList.add('static');
 						this.classList.remove('dynamic');
+						let trails_menu = document.getElementById("trails_menu");
+						trails_menu.classList.add('trails_menu_hide');
+						let buttonreset = document.getElementById("resetbutton");
+						buttonreset.classList.add('trails_menu_hide');
 						locations.push([cursor.x, cursor.y, cursor.z]);
 						painter.mesh.material.opacity = 0;
 						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
-						trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+						trails.forEach(trail => trail.children[0].children[0].material.transparent = true)
 					}
 				})
 
-				changeAircraft(AIRCRAFTS_META_DATA[0]);
+				changeAircraft(AIRCRAFTS_META_DATA[2]);
 				loadLight();
 				loadPainter();
 				loadController();
@@ -385,10 +540,22 @@
 				loadPainter();
 			}
 
+			function closeScene() {
+				let newWindow = window.open("about:blank");
+				window.close();
+			}
+
+			function resetTrail() {
+				TRAILS_META_DATA.forEach(option => { document.getElementById(option.id).classList.remove("selected") });
+				scene.remove(trails);
+				trails.forEach(trail => { scene.remove(trail) });
+				trails = [];
+			}
+
 			function loadController() {
 				function onSelectStart(event) {
 					event.inputSource
-					
+
 					this.userData.isSelecting = true;
 					this.userData.skipFrames = 2;
 					document.body.classList.add('is-selecting')
@@ -419,9 +586,18 @@
 						if (aircraft)
 							scene.remove(aircraft);
 						aircraft = gltf.scene;
+						animations = gltf.animations;
 						const scale = selectedAircraft.scale;
 						aircraft.scale.set(scale, scale, scale);
 						scene.add(aircraft);
+
+						mixer = new THREE.AnimationMixer(aircraft);
+
+						animations.forEach(animation => {
+							action = mixer.clipAction(animation);
+							action.play();
+						});
+
 					}, undefined, function (error) {
 						console.error(error);
 					});
@@ -487,7 +663,7 @@
 					new GLTFLoader()
 						.load('./3d_models/trails/gltf/' + selectedTrails.id + '/object.' + selectedTrails.type, function (gltf) {
 							const trail = gltf.scene;
-							let scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+							let scale = (selectedTrails.scale * Math.abs((1 - ((i + 1) / 10)) % 1));
 							// let scale = (selectedTrails.scale);
 							if (i == 0) {
 								scale = scale / 2;
@@ -514,7 +690,7 @@
 								.load('object.obj', function (object) {
 									const trail = object;
 									// const num = ((1 - (i / 10)) % 1) / 10000
-									const scale = (selectedTrails.scale * Math.abs((1-((i+1)/10))%1)); 
+									const scale = (selectedTrails.scale * Math.abs((1 - ((i + 1) / 10)) % 1));
 									// const scale = selectedTrails.scale;
 									trail.scale.set(scale, scale, scale);
 									scene.add(trail);
@@ -579,7 +755,8 @@
 
 			function handleController(controller) {
 				const userData = controller.userData;
-				cursor.set(0, 0, - 0.2).applyMatrix4(camera.matrixWorld);
+				const zoom = controls.target.distanceTo(controls.object.position)
+				cursor.set(0, 0, - zoom).applyMatrix4(camera.matrixWorld);
 				if (userData.isSelecting === true) {
 					if (userData.skipFrames >= 0) {
 						// TODO(mrdoob) Revisit this
@@ -595,20 +772,72 @@
 			}
 
 			function animate() {
+				let render;
+				render = isIOS() ? iosRender : baseRender;
 				renderer.setAnimationLoop(render);
 			}
 
-			function render() {
-				handleController(controller);
-				if (aircraft)
-					placeAircraft()
-				if(mode == 'dynamic') {
-					trails.forEach(trail => trail.children[0].children[0].material.opacity = 1)
-					trails.forEach(trail => trail.children[0].children[0].material.transparent = true)
-				} else  {
-					trails.forEach(trail => trail.children[0].children[0].material.opacity = 0)
+			function renderEnvironment() {
+				planeMesh.material.roughness = params.roughness;
+				planeMesh.material.metalness = params.metalness;
+
+				let newEnvMap = planeMesh.material.envMap;
+				let background = scene.background;
+
+				switch (params.envMap) {
+
+					case 'EXR':
+						newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null;
+						background = exrBackground;
+						break;
+					case 'PNG':
+						newEnvMap = pngCubeRenderTarget ? pngCubeRenderTarget.texture : null;
+						background = pngBackground;
+						break;
+
 				}
+
+				if (newEnvMap !== planeMesh.material.envMap) {
+
+					planeMesh.material.envMap = newEnvMap;
+					planeMesh.material.needsUpdate = true;
+
+					planeMesh.material.map = newEnvMap;
+					planeMesh.material.needsUpdate = true;
+
+				}
+
+				planeMesh.rotation.y += 0.005;
+				planeMesh.visible = params.debug;
+
+				scene.background = background;
+				renderer.toneMappingExposure = params.exposure;
+			}
+
+			function renderAircraft() {
+
+				handleController(controller);
+				if (aircraft) {
+					placeAircraft();
+				}
+			}
+
+			function renderAnimations() {
+				delta = clock.getDelta();
+				if (mixer) {
+					mixer.update(delta);
+				}
+			}
+
+			function baseRender() {
+				renderAircraft();
+				renderAnimations();
 				renderer.render(scene, camera);
+			}
+
+			function iosRender() {
+				renderEnvironment();
+				baseRender();
 			}
 
 			function placeAircraft() {
@@ -620,7 +849,7 @@
 				} else if (locations.length === 1)
 					aircraft?.position.set(...locations[0])
 				else {
-					if(mode == 'dynamic') {
+					if (mode == 'dynamic') {
 						const smoothLocations = smooth(addMidpoints(locations, 8));
 						const currentTravelPercent = getCurrentTravelPercent();
 						//document.getElementById("button-reset").innerHTML = (currentTravelPercent*100).toFixed(2);
@@ -638,7 +867,8 @@
 							trails[i].rotation.z += (0.03 + i / 500);
 						}
 					} else {
-						aircraft?.position.set(...locations[locations.length - 1])
+						aircraft?.position.set(...locations[locations.length - 1]);
+						aircraft.rotation.set(0, 0, 0);
 					}
 				}
 			}
@@ -680,15 +910,15 @@
 				if (percent < 0) return currentLocationByPercent(locations, (percent + 100) % 1)
 
 				const totalLen = travelLength(locations);
-				let idx, sum=0;
-				for (idx=0; idx <= locations.length && sum <= totalLen * percent; idx++) {
-					sum += oclidianDistance(locations[idx], locations[(idx+1) % locations.length])
+				let idx, sum = 0;
+				for (idx = 0; idx <= locations.length && sum <= totalLen * percent; idx++) {
+					sum += oclidianDistance(locations[idx], locations[(idx + 1) % locations.length])
 				}
-				if(!locations[idx] || !locations[(idx+1) % locations.length])
+				if (!locations[idx] || !locations[(idx + 1) % locations.length])
 					debugger
-				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx-1], locations[idx]) 
+				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx - 1], locations[idx])
 
-				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1-r))
+				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1 - r))
 			}
 
 			function getCurrentTravelPercent() {
@@ -715,11 +945,70 @@
 				)
 			}
 
-		// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-		// 	alert("Error occured: " + JSON.stringify({errorMsg, url, lineNumber}));//or any message
-		// 	alert("toError:", window.toError)
-		// 	return false;
-		// }
+			window.finishTutorial = function (stepFinished) {
+				stepFinished = Number(stepFinished)
+				document.querySelector('.step-' + stepFinished).style.display = 'none';
+				const nextElem = document.querySelector('.step-' + (stepFinished + 1));
+				if (nextElem) {
+					nextElem.style.display = 'block';
+				} else {
+					document.getElementById('tutorial').style.display = 'none'
+				}
+				document.cookie = "tutorial=" + stepFinished + "; expires=Thu, 30 Dec 2021 12:00:00 UTC";
+			}
+
+			if (getCookie('tutorial')) {
+				const stepFinished = getCookie('tutorial');
+				document.querySelector('.step-1').style.display = 'none';
+				finishTutorial(stepFinished)
+			}
+
+			function getCookie(cname) {
+				var name = cname + "=";
+				var decodedCookie = decodeURIComponent(document.cookie);
+				var ca = decodedCookie.split(';');
+				for (var i = 0; i < ca.length; i++) {
+					var c = ca[i];
+					while (c.charAt(0) == ' ') {
+						c = c.substring(1);
+					}
+					if (c.indexOf(name) == 0) {
+						return c.substring(name.length, c.length);
+					}
+				}
+				return "";
+			}
+
+			function isIOS() {
+				return [
+					'iPad Simulator',
+					'iPhone Simulator',
+					'iPod Simulator',
+					'iPad',
+					'iPhone',
+					'iPod'
+				].includes(navigator.platform)
+					// iPad on iOS 13 detection
+					|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+			}
+
+			window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+
+				var today = new Date();
+				var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
+				var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+				var dateTime = date + ' ' + time;
+
+				firebase.database().ref('error-logs/ ' + dateTime).set({
+					message: errorMsg,
+					url: url,
+					line_number: lineNumber,
+					user_agent: navigator.userAgent,
+					date: dateTime
+				});
+
+				return false;
+			}
 
 		// var isScrolling;
 		// document.getElementById("aircrafts_menu").addEventListener('scroll', function ( event ) {

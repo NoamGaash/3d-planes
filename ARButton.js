@@ -63,13 +63,13 @@ class ARButton {
 
 			function onSessionEnded( /*event*/ ) {
 
-				if(sessionInit.endSessionCallback) {
-					sessionInit.endSessionCallback()
-				}
+				// if(sessionInit.endSessionCallback) {
+				// 	sessionInit.endSessionCallback()
+				// }
 
 				currentSession.removeEventListener( 'end', onSessionEnded );
 
-				button.textContent = 'START AR';
+				button.textContent = 'תלת מימד';
 				sessionInit.domOverlay.root.style.display = 'none';
 
 				currentSession = null;
@@ -84,7 +84,7 @@ class ARButton {
 			button.style.left = 'calc(50% - 50px)';
 			button.style.width = '100px';
 
-			button.textContent = 'START AR';
+			button.textContent = 'תלת מימד';
 
 			button.onmouseenter = function () {
 
@@ -98,19 +98,33 @@ class ARButton {
 
 			};
 
+			// button.onclick = function () {
+			// 	debugger
+			// 	if ( currentSession === null ) {
+
+			// 		navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
+
+			// 	} else {
+
+			// 		currentSession.end();
+
+			// 	}
+
+			// };
+
 			button.onclick = function () {
 				debugger
 				if ( currentSession === null ) {
-
-					navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
-
-				} else {
-
-					currentSession.end();
-
-				}
+				navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted);}
 
 			};
+
+			sessionInit.closebutton.onclick = function () {
+
+				currentSession.end();
+
+			};
+
 
 		}
 

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
 body {
   margin: 0;
   background-color: #000;
@@ -160,12 +162,42 @@ select {
 }
 #controls #button-mode-toggle {
   color: white;
+  width: 130px;
+  position: relative;
 }
-#controls #button-mode-toggle.dynamic::after {
-  content: 'dynamic'
+
+#controls #button-mode-toggle > * {
+  display: inline-block;
+  width: 48px;
+  height: 35px;
+  background-repeat: no-repeat;
 }
+
+#controls #button-mode-toggle .dynamic-mode {
+  background-image: url(./assets/dynamic-mode.svg);
+}
+#controls #button-mode-toggle .static-mode {
+  background-image: url(./assets/static-mode.svg);
+}
+
+#controls #button-mode-toggle::after {
+  content: '';
+  width: 54.5px;
+  height: 3px;
+  background-color: lightblue;
+  display: block;
+  position: absolute;
+  right: 0;
+  transition: all 0.2s;
+}
+
+#controls #button-mode-toggle:focus {
+  outline: none;
+}
+
 #controls #button-mode-toggle.static::after {
-  content: 'static'
+  right: 100%;
+  transform: translateX(100%);
 }
 
 .tool-button {
@@ -214,13 +246,7 @@ select {
 	transition: all 0.2s;
 }
 
-#video {
-	border: 1px solid black;
-	box-shadow: 2px 2px 3px black;
-	width: 100%;
-	height: 100%;
-  opacity: 0;
-  }
+
   
   #canvas {
 	display: none;
@@ -233,7 +259,17 @@ select {
     left: 0;
     right: 0;
     bottom: 0;
+    height: 100vh;
+    width: 100vw;
   }
+
+  #video {
+    border: 1px solid black;
+    box-shadow: 2px 2px 3px black;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    }
   
   .output {
 	width: 340px;
@@ -323,22 +359,32 @@ canvas {
 }
 
 .middleCircle {
-  border: 4px solid white;
+  border: 4px solid #ffffffd8;
   border-radius: 500px;
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   position: absolute;
-  left: calc(50% - 29px);
-  bottom: 51px;
+  left: calc(50% - 32px);
+  bottom: 49px;
 }
 
 #trails_menu {
-  width: 100%;
+  width: 80%;
   overflow: scroll;
   display: flex;
   align-items: center;
   min-width: 0;
   scroll-snap-type: inline mandatory;
+}
+
+div #trails_menu.trails_menu_hide{
+  display:  none;
+}
+
+div #resetbutton.trails_menu_hide {
+  
+  visibility: hidden;
+ 
 }
 
 #trails_menu img {
@@ -385,6 +431,9 @@ canvas {
   left: 0;
   right: 0;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #settings_menu {
@@ -418,4 +467,69 @@ canvas {
 .image-model {
   width: 200px;
   border-radius: 10px;
+}
+
+
+
+
+/*********** tutorial **************/
+
+#tutorial {
+  width: 65.8%;
+  padding: 6.3% 6.3% 48px 6.3%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: Heebo;
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 1.18;
+  text-align: center;
+  color: #37474f;
+  z-index: 1200;
+  background-color: #eeeeee;
+  border: 1px solid #eff1f1;
+  border-radius: 16px;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.3);
+  direction: rtl;
+}
+
+#tutorial p {
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.29;
+}
+#tutorial .screen-example {
+  height: 337px;
+  background-color: #eeeeee;
+}
+
+#tutorial nav > :not(button) {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  margin: 0 11px;
+  background-color: #d8d8d8;
+}
+
+#tutorial nav > .active {
+  background-color: #8b8b8b;
+}
+
+#tutorial .next {
+  height: 48px;
+  border-radius: 0 0 16px 16px;
+  background-color: #3bb5f2;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border: none;
+}
+
+#tutorial .step-2, #tutorial .step-3 {
+  display: none;
 }
