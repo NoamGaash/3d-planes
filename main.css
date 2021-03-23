@@ -368,8 +368,8 @@ canvas {
   width: 55px;
   height: 55px;
   position: absolute;
-  left: calc(50% - 32px);
-  bottom: 49px;
+  left: calc(50% - 31.5px);
+  bottom: 48.5px;
 }
 
 #trails_menu {
