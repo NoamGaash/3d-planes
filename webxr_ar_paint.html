@@ -42,16 +42,31 @@
 
 			const today = new Date();
 			const date = today.getFullYear() + '-' + (today.getMonth() + 1) + "-" + today.getDate();
-			const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + (+ today) % 1000;
+			const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + ":" + (+ today) % 1000;
 			const dateTime = date + ' ' + time;
+			const cur_user_agent = new UAParser();
+			cur_user_agent.setUA(navigator.userAgent);
+			const result = cur_user_agent.getResult();
 
-			firebase.database().ref('error-logs/ ' + dateTime).set({
-				message: errorMsg,
-				url: url,
-				line_number: lineNumber,
-				user_agent: navigator.userAgent,
-				date: dateTime
-			});
+
+			firebase.database().ref('error-logs/ ' +
+				dateTime + " | " +
+				cur_user_agent.getDevice().vendor + " " +
+				cur_user_agent.getDevice().model + " | " +
+				cur_user_agent.getOS().name + " " +
+				cur_user_agent.getOS().version.replaceAll(".", ":") + " | " +
+				cur_user_agent.getBrowser().name + " " +
+				cur_user_agent.getBrowser().version.replaceAll(".", ":")).set({
+					date: dateTime,
+					user_agent: navigator.userAgent,
+					browser: cur_user_agent.getBrowser(),
+					device: cur_user_agent.getDevice(),
+					OS: cur_user_agent.getOS(),
+					engine: cur_user_agent.getEngine(),
+					message: errorMsg,
+					url: url,
+					line_number: lineNumber,
+				});
 			return false;
 		}
 	</script>
@@ -149,29 +164,52 @@
 			const cur_user_agent = new UAParser();
 			cur_user_agent.setUA(navigator.userAgent);
 			const result = cur_user_agent.getResult();
+
 			let isSupported;
 
 			function checkDeviceSupport() {
-				console.log(result)
+				console.log(cur_user_agent.getResult())
+				console.log(cur_user_agent.getBrowser())
 
 				if ('xr' in navigator) {
 					navigator.xr.isSessionSupported('immersive-ar').then(function (supported) {
 						isSupported = supported;
 						init();
 						animate();
-						if (supported) {
-							//alert("ar supported" + supported);
-							firebase.database().ref('devices/supported/' + dateTime).set({
-								user_agent: navigator.userAgent,
-								date: dateTime
-							});
+						console.log(getCookie('tutorial'));
+						if (supported && getCookie('tutorial') != 3) {
+							firebase.database().ref('devices/supported/' +
+								cur_user_agent.getDevice().vendor + " " +
+								cur_user_agent.getDevice().model + " | " +
+								cur_user_agent.getOS().name + " " +
+								cur_user_agent.getOS().version.replaceAll(".", ":") + " | " +
+								cur_user_agent.getBrowser().name + " " +
+								cur_user_agent.getBrowser().version.replaceAll(".", ":") + " | " +
+								dateTime).set({
+									date: dateTime,
+									user_agent: navigator.userAgent,
+									browser: cur_user_agent.getBrowser(),
+									device: cur_user_agent.getDevice(),
+									OS: cur_user_agent.getOS(),
+									engine: cur_user_agent.getEngine()
+								});
 						}
-						else {
-							//alert("ar not supported" + supported);
-							firebase.database().ref('devices/not-supported/' + dateTime).set({
-								user_agent: navigator.userAgent,
-								date: dateTime
-							});
+						else if (getCookie('tutorial') !== 3) {
+							firebase.database().ref('devices/not-supported/' +
+								cur_user_agent.getDevice().vendor + " " +
+								cur_user_agent.getDevice().model + " | " +
+								cur_user_agent.getOS().name + " " +
+								cur_user_agent.getOS().version.replaceAll(".", ":") + " | " +
+								cur_user_agent.getBrowser().name + " " +
+								cur_user_agent.getBrowser().version.replaceAll(".", ":") + " | " +
+								dateTime).set({
+									date: dateTime,
+									user_agent: navigator.userAgent,
+									browser: cur_user_agent.getBrowser(),
+									device: cur_user_agent.getDevice(),
+									OS: cur_user_agent.getOS(),
+									engine: cur_user_agent.getEngine()
+								});
 						}
 					}).catch();
 				} else {
@@ -179,16 +217,25 @@
 					isSupported = false;
 					init();
 					animate();
-					if (window.isSecureContext === false) {
+					if (window.isSecureContext == false) {
 						message.innerHTML = 'WEBXR NEEDS HTTPS';
-						//alert("WEBXR NEEDS HTTPS" + false);
-					} else {
+					} else if (getCookie('tutorial') !== 3) {
 						message.innerHTML = 'WEBXR NOT AVAILABLE';
-						//alert("WEBXR NOT AVAILABLE" + false);
-						firebase.database().ref('devices/not-available/' + dateTime).set({
-							user_agent: navigator.userAgent,
-							date: dateTime
-						});
+						firebase.database().ref('devices/not-available/' +
+							cur_user_agent.getDevice().vendor + " " +
+							cur_user_agent.getDevice().model + " | " +
+							cur_user_agent.getOS().name + " " +
+							cur_user_agent.getOS().version.replaceAll(".", ":") + " | " +
+							cur_user_agent.getBrowser().name + " " +
+							cur_user_agent.getBrowser().version.replaceAll(".", ":") + " | " +
+							dateTime).set({
+								date: dateTime,
+								user_agent: navigator.userAgent,
+								browser: cur_user_agent.getBrowser(),
+								device: cur_user_agent.getDevice(),
+								OS: cur_user_agent.getOS(),
+								engine: cur_user_agent.getEngine()
+							});
 					}
 				}
 			}
