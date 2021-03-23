@@ -233,12 +233,9 @@
 						const centeredElement = document.elementFromPoint(
 							document.body.offsetWidth / 2, document.documentElement.clientHeight - 90
 						);
-
-						console.log(centeredElement);
-
 						let selected = centeredElement.parentElement.innerHTML.replace('<img src="./assets/', '').replace('.png">', '');
 						AIRCRAFTS_META_DATA.forEach((e) => {
-							if (e.id === selected) { console.log(e); changeAircraft(e); }
+							if (e.id === selected) changeAircraft(e);
 						})
 					}, 100);
 				}
@@ -253,7 +250,7 @@
 
 				document.getElementById('controls').addEventListener('beforexrselect', ev => ev.preventDefault());
 				document.getElementById('menus').addEventListener('beforexrselect', ev => ev.preventDefault());
-
+				
 				AIRCRAFTS_META_DATA.forEach(aircraft => {
 					const elem = document.createElement('button');
 					elem.classList.add("aircraft-option");
