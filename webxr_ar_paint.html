@@ -18,7 +18,7 @@
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-database.js"></script>
-
+	<script src="https://cdn.jsdelivr.net/npm/ua-parser-js@0/dist/ua-parser.min.js"></script>
 
 	<script>
 		// Your web app's Firebase configuration
@@ -125,28 +125,31 @@
 			import { OrbitControls } from "./node_modules/three/examples/jsm/controls/OrbitControls.js";
 			import { EXRLoader } from './node_modules/three/examples/jsm/loaders/EXRLoader.js';
 
-			const cur_user_agent = navigator.userAgent;
 			const today = new Date();
 			const date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
 			const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 			const dateTime = date + ' ' + time;
+			const cur_user_agent = new UAParser();
+			cur_user_agent.setUA(navigator.userAgent);
+    		const result = cur_user_agent.getResult();
 
 			function checkDeviceSupport() {
 				let isSupported;
+				console.log(result)
 				if ('xr' in navigator) {
 					navigator.xr.isSessionSupported('immersive-ar').then(function (supported) {
 						isSupported = supported;
 						if (supported) {
 							alert("ar supported" + supported);
 							firebase.database().ref('devices/supported/' + dateTime).set({
-								user_agent: cur_user_agent,
+								user_agent: result,
 								date: dateTime
 							});
 						}
 						else {
 							alert("ar not supported" + supported);
 							firebase.database().ref('devices/not-supported/' + dateTime).set({
-								user_agent: cur_user_agent,
+								user_agent: result,
 								date: dateTime
 							});
 						}
@@ -160,7 +163,7 @@
 						message.innerHTML = 'WEBXR NOT AVAILABLE';
 						alert("WEBXR NOT AVAILABLE" + false);
 						firebase.database().ref('devices/not-available/' + dateTime).set({
-							user_agent: cur_user_agent,
+							user_agent: result,
 							date: dateTime
 						});
 					}
@@ -1004,7 +1007,7 @@
 			}
 
 			function getCookie(cname) {
-				var name = cname + "=";
+				var name = cnames + "=";
 				var decodedCookie = decodeURIComponent(document.cookie);
 				var ca = decodedCookie.split(';');
 				for (var i = 0; i < ca.length; i++) {
@@ -1043,7 +1046,7 @@
 					message: errorMsg,
 					url: url,
 					line_number: lineNumber,
-					user_agent: cur_user_agent,
+					user_agent: result,
 					date: dateTime
 				});
 
