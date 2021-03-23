@@ -113,7 +113,6 @@ class ARButton {
 			// };
 
 			button.onclick = function () {
-				debugger
 				if ( currentSession === null ) {
 				navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted);}
 

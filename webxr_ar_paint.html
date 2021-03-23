@@ -37,6 +37,23 @@
 		firebase.initializeApp(firebaseConfig);
 		firebase.analytics();
 		var database = firebase.database();
+
+		window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+				
+				const today = new Date();
+				const date = today.getFullYear() + '-' + (today.getMonth() + 1) + "-" + today.getDate();
+				const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + (+ today) % 1000;
+				const dateTime = date + ' ' + time;
+				
+				firebase.database().ref('error-logs/ ' + dateTime).set({
+					message: errorMsg,
+					url: url,
+					line_number: lineNumber,
+					user_agent: navigator.userAgent,
+					date: dateTime
+				});
+				return false;
+			}
 	</script>
 	</head>
 
@@ -114,7 +131,6 @@
 		</div>
 
 		<script type="module">
-
 			import * as THREE from './node_modules/three/build/three.module.js';
 			import { TubePainter } from './node_modules/three/examples/jsm/misc/TubePainter.js';
 			import { ARButton } from './ARButton.js';
@@ -132,44 +148,48 @@
 			const cur_user_agent = new UAParser();
 			cur_user_agent.setUA(navigator.userAgent);
     		const result = cur_user_agent.getResult();
-
-			function checkDeviceSupport() {
-				let isSupported;
+			let isSupported;
+			
+			function checkDeviceSupport() {	
 				console.log(result)
+				
 				if ('xr' in navigator) {
 					navigator.xr.isSessionSupported('immersive-ar').then(function (supported) {
 						isSupported = supported;
+						init();
+						animate();
 						if (supported) {
-							alert("ar supported" + supported);
+							//alert("ar supported" + supported);
 							firebase.database().ref('devices/supported/' + dateTime).set({
-								user_agent: result,
+								user_agent: navigator.userAgent,
 								date: dateTime
 							});
 						}
 						else {
-							alert("ar not supported" + supported);
+							//alert("ar not supported" + supported);
 							firebase.database().ref('devices/not-supported/' + dateTime).set({
-								user_agent: result,
+								user_agent: navigator.userAgent,
 								date: dateTime
 							});
 						}
 					}).catch();
 				} else {
 					const message = document.createElement('a');
+					isSupported = false;
+					init();
+					animate();
 					if (window.isSecureContext === false) {
 						message.innerHTML = 'WEBXR NEEDS HTTPS';
-						alert("WEBXR NEEDS HTTPS" + false);
+						//alert("WEBXR NEEDS HTTPS" + false);
 					} else {
 						message.innerHTML = 'WEBXR NOT AVAILABLE';
-						alert("WEBXR NOT AVAILABLE" + false);
+						//alert("WEBXR NOT AVAILABLE" + false);
 						firebase.database().ref('devices/not-available/' + dateTime).set({
-							user_agent: result,
+							user_agent: navigator.userAgent,
 							date: dateTime
 						});
 					}
-					isSupported = false;
 				}
-				return isSupported;
 			}
 
 			let container, stats;
@@ -244,10 +264,7 @@
 				{ id: "beachball", type: "glb", scale: 0.25, text: "Beach Ball" },
 			]
 
-			init();
-			animate();
-
-			let mode = 'dynamic'
+			let mode = 'dynamic';
 
 			var pathRef = firebase.database().ref('path');
 			pathRef.on('value', (snapshot) => {
@@ -291,7 +308,6 @@
 
 				document.getElementById('controls').addEventListener('beforexrselect', ev => ev.preventDefault());
 				document.getElementById('menus').addEventListener('beforexrselect', ev => ev.preventDefault());
-
 				AIRCRAFTS_META_DATA.forEach(aircraft => {
 					const elem = document.createElement('button');
 					elem.classList.add("aircraft-option");
@@ -814,9 +830,7 @@
 
 			function animate() {
 				let render;
-				let check = checkDeviceSupport();
-				alert("1" + check);
-				render = checkDeviceSupport() ? iosRender : baseRender;
+				render = isSupported ?  baseRender : iosRender;
 				renderer.setAnimationLoop(render);
 			}
 
@@ -957,11 +971,13 @@
 				for (idx = 0; idx <= locations.length && sum <= totalLen * percent; idx++) {
 					sum += oclidianDistance(locations[idx], locations[(idx + 1) % locations.length])
 				}
-				if (!locations[idx] || !locations[(idx + 1) % locations.length])
+				if (!locations[idx % locations.length] || !locations[(idx + 1) % locations.length]){
 					debugger
-				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx - 1], locations[idx])
+					idx = 0;
+				}
+				const r = (sum - totalLen * percent) / oclidianDistance(locations[idx - 1], locations[idx % locations.length])
 
-				return locations[idx].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1 - r))
+				return locations[idx % locations.length].map((val, axis) => val * r + locations[(idx + 1) % locations.length][axis] * (1 - r))
 			}
 
 			function getCurrentTravelPercent() {
@@ -1007,7 +1023,7 @@
 			}
 
 			function getCookie(cname) {
-				var name = cnames + "=";
+				var name = cname + "=";
 				var decodedCookie = decodeURIComponent(document.cookie);
 				var ca = decodedCookie.split(';');
 				for (var i = 0; i < ca.length; i++) {
@@ -1034,25 +1050,10 @@
 					// iPad on iOS 13 detection
 					|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 			}
+			
+			checkDeviceSupport()
 
-			window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-
-				const today = new Date();
-				const date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
-				const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-				const dateTime = date + ' ' + time;
-
-				firebase.database().ref('error-logs/ ' + dateTime).set({
-					message: errorMsg,
-					url: url,
-					line_number: lineNumber,
-					user_agent: result,
-					date: dateTime
-				});
-
-				return false;
-			}
-
+			
 		// var isScrolling;
 		// document.getElementById("aircrafts_menu").addEventListener('scroll', function ( event ) {
 		// 	window.clearTimeout(isScrolling);
