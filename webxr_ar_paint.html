@@ -241,7 +241,7 @@
 				}
 				
 				setTimeout(() => {
-					document.getElementById('f35').scrollIntoView({
+					window.scrollIntoView(document.getElementById('f35'), {
 						behavior: 'smooth',
 						block: 'center',
 						inline: 'center'
@@ -259,7 +259,7 @@
 					elem.innerHTML = `<img src="./assets/${aircraft.text}.png"/>`;
 					document.getElementById('aircrafts_menu').insertBefore(elem, document.getElementById('aircrafts_menu').children[1]);
 					elem.addEventListener('click', (e) => {
-						e.target.scrollIntoView({
+						window.scrollIntoView(e.target, {
 							behavior: 'smooth',
 							block: 'center',
 							inline: 'center'
@@ -1019,6 +1019,8 @@
 		// }, false);
 
 		</script>
+
+		<script src="https://unpkg.com/smooth-scroll-into-view-if-needed/umd/smooth-scroll-into-view-if-needed.min.js"></script>
 
 		<!-- <script>
 		function isIOS() {
