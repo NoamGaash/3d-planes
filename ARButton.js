@@ -113,7 +113,6 @@ class ARButton {
 			// };
 
 			button.onclick = function () {
-				debugger
 				if ( currentSession === null ) {
 				navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted);}
 
@@ -194,7 +193,7 @@ class ARButton {
 
 			} else {
 
-				message.href = 'https://immersiveweb.dev/';
+				// message.href = 'https://immersiveweb.dev/';
 				message.innerHTML = 'WEBXR NOT AVAILABLE';
 
 			}
