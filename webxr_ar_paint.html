@@ -305,15 +305,13 @@
 
 
 			const AIRCRAFTS_META_DATA = [
-				// { id: "yasur", type: "glb", scale: 0.000007, text: "yasur" },
-				// { id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
-				// { id: "aero", type: "glb", scale: 0.005, text: "aero" },
-				// { id: "rafael", type: "gltf", scale: 0.005, text: "f99" }
 				{ id: "efroni", type: "glb", scale: 0.03, text: "efroni" },
 				// { id: "tsofit", type: "glb", scale: 0.2, text: "tsofit" },
 				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
 				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
 				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
+				{ id: "sofa", type: "glb", scale: 0.036, text: "sofa" },
+				{ id: "lavie", type: "glb", scale: 0.026, text: "lavie" },
 				{ id: "karnaf", type: "glb", scale: 0.035, text: "karnaf" },
 			]
 
@@ -1074,7 +1072,7 @@
 			}
 
 			function getCurrentTravelPercent() {
-				const totalMillis = travelLength(locations) * 5000;
+				const totalMillis = travelLength(locations) * 10000;
 				if (Date.now() - animationCycleStart > totalMillis)
 					animationCycleStart = Date.now();
 
