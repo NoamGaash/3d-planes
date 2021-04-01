@@ -172,26 +172,44 @@ select {
 
 #controls #button-mode-toggle > * {
   display: inline-block;
-  width: 48px;
-  height: 35px;
   background-repeat: no-repeat;
 }
 
 #controls #button-mode-toggle .dynamic-mode {
-  background-image: url(./assets/dynamic-mode.svg);
+  width: 55px;
+  height: 45px;
 }
+
 #controls #button-mode-toggle .static-mode {
-  background-image: url(./assets/static-mode.svg);
+  width: 55px;
+  height: 45px;
+}
+
+#controls #button-mode-toggle.dynamic .dynamic-mode {
+  background-image: url(./assets/dynamic-icon-selected.svg);
+}
+
+#controls #button-mode-toggle.dynamic .static-mode {
+  background-image: url(./assets/static-icon.svg);
+}
+
+#controls #button-mode-toggle.static .dynamic-mode {
+  background-image: url(./assets/dynamic-icon.svg);
+}
+
+#controls #button-mode-toggle.static .static-mode {
+  background-image: url(./assets/static-icon-selected.svg);
 }
 
 #controls #button-mode-toggle::after {
   content: '';
-  width: 54.5px;
+  width: 50px;
   height: 3px;
-  background-color: lightblue;
+  background-color: #3BB5F2;
   display: block;
   position: absolute;
-  right: 0;
+  right: 5px;
+  /* left: 10px; */
   transition: all 0.2s;
 }
 
@@ -200,7 +218,7 @@ select {
 }
 
 #controls #button-mode-toggle.static::after {
-  right: 100%;
+  right: 88%;
   transform: translateX(100%);
 }
 
