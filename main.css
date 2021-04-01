@@ -166,7 +166,7 @@ select {
 }
 #controls #button-mode-toggle {
   color: white;
-  width: 130px;
+  width: 140px;
   position: relative;
 }
 
@@ -176,7 +176,7 @@ select {
 }
 
 #controls #button-mode-toggle .dynamic-mode {
-  width: 55px;
+  width: 50px;
   height: 45px;
 }
 
@@ -208,8 +208,7 @@ select {
   background-color: #3BB5F2;
   display: block;
   position: absolute;
-  right: 5px;
-  /* left: 10px; */
+  right: 10px;
   transition: all 0.2s;
 }
 
@@ -218,7 +217,7 @@ select {
 }
 
 #controls #button-mode-toggle.static::after {
-  right: 88%;
+  right: 85%;
   transform: translateX(100%);
 }
 
