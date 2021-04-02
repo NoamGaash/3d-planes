@@ -87,9 +87,9 @@
 			</div>
 			<div id="menus">
 				<div id="trails_menu">
-					<!-- <div style="min-width: calc(50vw - 45px); height: 50px; flex: 1 0 auto;"></div> -->
+					<div style="min-width: calc(50vw - 45px); height: 50px; flex: 1 0 auto;"></div>
 					<img id="exit-trail" class="small-x-button" src="./assets/small-x.svg" alt="Exit Trail">
-					<!-- <div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div> -->
+					<div style="min-width: 200px; height: 50px; flex: 1 0 auto;"></div>
 				</div>
 
 				<div id="aircrafts_menu">
@@ -358,12 +358,12 @@
 				// { id: "basketball", type: "glb", scale: 0.025, text: "Basketball" },
 				// { id: "cake", type: "glb", scale: 0.04, text: "cake" },
 				// { id: "present", type: "glb", scale: 0.09, text: "present" },
-				{ id: "heart", type: "glb", scale: 0.005, text: "Red heart" },
-				{ id: "blue", type: "obj", scale: 0.0001, text: "david" },
-				{ id: "love", type: "glb", scale: 0.5, text: "Heart Eyes Face" },
+				{ id: "heart", type: "glb", scale: 0.005, text: "heart" },
+				{ id: "blue", type: "obj", scale: 0.0001, text: "blue" },
+				{ id: "love", type: "glb", scale: 0.5, text: "love" },
 				{ id: "star", type: "glb", scale: 0.05, text: "star" },
 				{ id: "doughnut", type: "glb", scale: 0.09, text: "doughnut" },
-				{ id: "beachball", type: "glb", scale: 0.25, text: "Beach Ball" },
+				{ id: "beachball", type: "glb", scale: 0.25, text: "beachball" },
 			]
 
 			let mode = 'dynamic';
@@ -397,18 +397,30 @@
 						const centeredElement = document.elementFromPoint(
 							document.body.offsetWidth / 2, document.documentElement.clientHeight - 90
 						);
-
-						console.log(centeredElement);
-
 						let selected = centeredElement.parentElement.innerHTML.replace('<img src="./assets/', '').replace('.png">', '');
 						AIRCRAFTS_META_DATA.forEach((e) => {
-							if (e.id === selected) { console.log(e); changeAircraft(e); }
+							if (e.id === selected) changeAircraft(e);
+						})
+					}, 100);
+				}
+
+				let isTrailScrolling = setTimeout(() => { }, 0);
+				document.getElementById('trails_menu').onscroll = () => {
+					clearInterval(isTrailScrolling);
+					isTrailScrolling = setTimeout(() => {
+						const centeredElement = document.elementFromPoint(
+							document.body.offsetWidth / 2, document.documentElement.clientHeight - 130
+						);
+						let selected = centeredElement.parentElement.innerHTML.replace('<img src="./assets/', '').replace('.png">', '');
+						console.log(selected);
+						TRAILS_META_DATA.forEach((e) => {
+							if (e.id === selected) changeTrails(e);
 						})
 					}, 100);
 				}
 
 				setTimeout(() => {
-					document.getElementById('f35').scrollIntoView({
+					window.scrollIntoView(document.getElementById('f35'), {
 						behavior: 'smooth',
 						block: 'center',
 						inline: 'center'
@@ -417,6 +429,7 @@
 
 				document.getElementById('controls').addEventListener('beforexrselect', ev => ev.preventDefault());
 				document.getElementById('menus').addEventListener('beforexrselect', ev => ev.preventDefault());
+				
 				AIRCRAFTS_META_DATA.forEach(aircraft => {
 					const elem = document.createElement('button');
 					elem.classList.add("aircraft-option");
@@ -425,7 +438,7 @@
 					elem.innerHTML = `<img src="./assets/${aircraft.text}.png"/>`;
 					document.getElementById('aircrafts_menu').insertBefore(elem, document.getElementById('aircrafts_menu').children[1]);
 					elem.addEventListener('click', (e) => {
-						e.target.scrollIntoView({
+						window.scrollIntoView(e.target, {
 							behavior: 'smooth',
 							block: 'center',
 							inline: 'center'
@@ -439,9 +452,14 @@
 					elem.classList.add("trails-option");
 					elem.type = "button";
 					elem.id = trail.id;
-					elem.innerHTML = `<img id="${trail.text}" src="./assets/${trail.text}.png">`;
+					elem.innerHTML = `<img src="./assets/${trail.text}.png">`;
 					document.getElementById('trails_menu').insertBefore(elem, document.getElementById('trails_menu').children[2]);
-					elem.addEventListener('click', () => {
+					elem.addEventListener('click', (e) => {
+						window.scrollIntoView(e.target, {
+							behavior: 'smooth',
+							block: 'center',
+							inline: 'center'
+						});
 						changeTrails(trail);
 					})
 				})
@@ -666,7 +684,7 @@
 				loadLight();
 				loadPainter();
 				loadController();
-				changeTrails(TRAILS_META_DATA[0]);
+				changeTrails(TRAILS_META_DATA[TRAILS_META_DATA.length-1]);
 
 				window.addEventListener('resize', onWindowResize);
 
@@ -1197,6 +1215,8 @@
 		// }, false);
 
 		</script>
+
+		<script src="https://unpkg.com/smooth-scroll-into-view-if-needed/umd/smooth-scroll-into-view-if-needed.min.js"></script>
 
 		<!-- <script>
 		function isIOS() {
