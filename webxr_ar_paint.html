@@ -19,7 +19,6 @@
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-database.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/ua-parser-js@0/dist/ua-parser.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 
 	<script>
 		// Your web app's Firebase configuration
@@ -171,8 +170,15 @@
 						init();
 						animate();
 						console.log(getCookie('tutorial'));
-						if (supported && getCookie('tutorial') !== "3") {
-							firebase.database().ref('devices/supported/' + dateTime + " | " + uuid.v4() ).set({
+						if (supported && getCookie('tutorial') != 3) {
+							firebase.database().ref('devices/supported/' +
+								cur_user_agent.getDevice().vendor + " " +
+								cur_user_agent.getDevice().model + " | " +
+								cur_user_agent.getOS().name + " " +
+								cur_user_agent.getOS().version.replaceAll(".", ":") + " | " +
+								cur_user_agent.getBrowser().name + " " +
+								cur_user_agent.getBrowser().version.replaceAll(".", ":") + " | " +
+								dateTime).set({
 									date: dateTime,
 									user_agent: navigator.userAgent,
 									browser: cur_user_agent.getBrowser(),
@@ -181,8 +187,15 @@
 									engine: cur_user_agent.getEngine()
 								});
 						}
-						else if (getCookie('tutorial') !== "3") {
-							firebase.database().ref('devices/not-supported/' + dateTime + " | " + uuid.v4()).set({
+						else if (getCookie('tutorial') !== 3) {
+							firebase.database().ref('devices/not-supported/' +
+								cur_user_agent.getDevice().vendor + " " +
+								cur_user_agent.getDevice().model + " | " +
+								cur_user_agent.getOS().name + " " +
+								cur_user_agent.getOS().version.replaceAll(".", ":") + " | " +
+								cur_user_agent.getBrowser().name + " " +
+								cur_user_agent.getBrowser().version.replaceAll(".", ":") + " | " +
+								dateTime).set({
 									date: dateTime,
 									user_agent: navigator.userAgent,
 									browser: cur_user_agent.getBrowser(),
@@ -199,9 +212,16 @@
 					animate();
 					if (window.isSecureContext == false) {
 						message.innerHTML = 'WEBXR NEEDS HTTPS';
-					} else if (getCookie('tutorial') !== "3") {
+					} else if (getCookie('tutorial') !== 3) {
 						message.innerHTML = 'WEBXR NOT AVAILABLE';
-						firebase.database().ref('devices/not-available/' + dateTime + " | " + uuid.v4()).set({
+						firebase.database().ref('devices/not-available/' +
+							cur_user_agent.getDevice().vendor + " " +
+							cur_user_agent.getDevice().model + " | " +
+							cur_user_agent.getOS().name + " " +
+							cur_user_agent.getOS().version.replaceAll(".", ":") + " | " +
+							cur_user_agent.getBrowser().name + " " +
+							cur_user_agent.getBrowser().version.replaceAll(".", ":") + " | " +
+							dateTime).set({
 								date: dateTime,
 								user_agent: navigator.userAgent,
 								browser: cur_user_agent.getBrowser(),
@@ -305,14 +325,16 @@
 
 
 			const AIRCRAFTS_META_DATA = [
-				{ id: "tsofit", type: "glb", scale: 0.2, text: "tsofit" },
+				// { id: "yasur", type: "glb", scale: 0.000007, text: "yasur" },
+				// { id: "kfir", type: "glb", scale: 0.005, text: "kfir" },
+				// { id: "aero", type: "glb", scale: 0.005, text: "aero" },
+				// { id: "rafael", type: "gltf", scale: 0.005, text: "f99" }
 				{ id: "efroni", type: "glb", scale: 0.03, text: "efroni" },
-				{ id: "sofa", type: "glb", scale: 0.036, text: "sofa" },
+				// { id: "tsofit", type: "glb", scale: 0.2, text: "tsofit" },
 				{ id: "f15", type: "obj", scale: 0.007, text: "f15" },
 				{ id: "f35", type: "glb", scale: 0.1, text: "f35" },
-				{ id: "lavie", type: "glb", scale: 0.026, text: "lavie" },
-				{ id: "karnaf", type: "glb", scale: 0.035, text: "karnaf" },
 				{ id: "f16", type: "gltf", scale: 0.005, text: "f16" },
+				{ id: "karnaf", type: "glb", scale: 0.035, text: "karnaf" },
 			]
 
 			const TRAILS_META_DATA = [
@@ -461,7 +483,7 @@
 				planeMesh = new THREE.Mesh(geometry, material);
 				planeMesh.position.y = - 50;
 				planeMesh.rotation.x = - Math.PI * 0.5;
-				// scene.add(planeMesh);
+				scene.add(planeMesh);
 
 				THREE.DefaultLoadingManager.onLoad = function () {
 
@@ -1090,7 +1112,7 @@
 			}
 
 			function getCurrentTravelPercent() {
-				const totalMillis = travelLength(locations) * 10000;
+				const totalMillis = travelLength(locations) * 5000;
 				if (Date.now() - animationCycleStart > totalMillis)
 					animationCycleStart = Date.now();
 
