@@ -50,16 +50,16 @@
 
 
 			firebase.database().ref('error-logs/ ' + dateTime + " | " + uuid.v4()).set({
-					date: dateTime,
-					user_agent: navigator.userAgent,
-					browser: cur_user_agent.getBrowser(),
-					device: cur_user_agent.getDevice(),
-					OS: cur_user_agent.getOS(),
-					engine: cur_user_agent.getEngine(),
-					message: errorMsg,
-					url: url,
-					line_number: lineNumber,
-				});
+				date: dateTime,
+				user_agent: navigator.userAgent,
+				browser: cur_user_agent.getBrowser(),
+				device: cur_user_agent.getDevice(),
+				OS: cur_user_agent.getOS(),
+				engine: cur_user_agent.getEngine(),
+				message: errorMsg,
+				url: url,
+				line_number: lineNumber,
+			});
 			return false;
 		}
 	</script>
@@ -88,6 +88,11 @@
 				<div id="aircrafts_menu">
 					<div class="buffer" style="height: 50px; flex: 1 0 auto;"></div>
 					<div class="buffer" style="height: 50px; flex: 1 0 auto;"></div>
+				</div>
+
+				<div id="environment_menu">
+					<button id="environment_btn">Change Environment</button>
+					<button id="toggleEnvironment_btn">Toggle Environment</button>
 				</div>
 
 				<div id="settings_menu">
@@ -239,9 +244,9 @@
 			let controller, painter, aircraft, animations;
 			let animationCycleStart = new Date();
 			let trails = [];
-			let planeMesh;
 			let pngCubeRenderTarget, exrCubeRenderTarget;
 			let pngBackground, exrBackground;
+			let toggleEnvironment, defaultBackground, background;
 			const cursor = new THREE.Vector3();
 
 			const params = {
@@ -422,7 +427,23 @@
 
 				document.getElementById('controls').addEventListener('beforexrselect', ev => ev.preventDefault());
 				document.getElementById('menus').addEventListener('beforexrselect', ev => ev.preventDefault());
-				
+
+				let environmentFlag = false;
+				document.getElementById('environment_btn').addEventListener('click', e => {
+					if (environmentFlag) {
+						loadEnvironment('noon_grass_1k');
+					}
+					else {
+						loadEnvironment('equirectangular');
+					}
+					environmentFlag = !environmentFlag;
+
+				});
+
+				document.getElementById('toggleEnvironment_btn').addEventListener('click', e => {
+					toggleEnvironment = !toggleEnvironment;
+				});
+
 				AIRCRAFTS_META_DATA.forEach(aircraft => {
 					const elem = document.createElement('button');
 					elem.classList.add("aircraft-option");
@@ -470,52 +491,9 @@
 				renderer.xr.enabled = true;
 
 				// environment
-				let material = new THREE.MeshStandardMaterial({
-					metalness: params.roughness,
-					roughness: params.metalness,
-					envMapIntensity: 1.0
-				});
+				defaultBackground = scene.background;
+				loadEnvironment('noon_grass_1k');
 
-				let geometry = new THREE.PlaneGeometry(200, 200);
-
-				material = new THREE.MeshBasicMaterial();
-
-				planeMesh = new THREE.Mesh(geometry, material);
-				planeMesh.position.y = - 50;
-				planeMesh.rotation.x = - Math.PI * 0.5;
-				scene.add(planeMesh);
-
-				THREE.DefaultLoadingManager.onLoad = function () {
-
-					pmremGenerator.dispose();
-
-				};
-
-				new EXRLoader()
-					.setDataType(THREE.UnsignedByteType)
-					.load('assets/textures/compressed.exr', function (texture) {
-
-						exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
-						exrBackground = exrCubeRenderTarget.texture;
-
-						texture.dispose();
-
-					});
-
-				new THREE.TextureLoader().load('assets/textures/equirectangular.png', function (texture) {
-
-					texture.encoding = THREE.sRGBEncoding;
-
-					pngCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
-
-					pngBackground = pngCubeRenderTarget.texture;
-
-					texture.dispose();
-
-				});
-
-				const pmremGenerator = new THREE.PMREMGenerator(renderer);
-				pmremGenerator.compileEquirectangularShader();
 
 				renderer.toneMapping = THREE.ACESFilmicToneMapping;
 				renderer.outputEncoding = THREE.sRGBEncoding;
@@ -677,7 +655,7 @@
 				loadLight();
 				loadPainter();
 				loadController();
-				changeTrails(TRAILS_META_DATA[TRAILS_META_DATA.length-1]);
+				changeTrails(TRAILS_META_DATA[TRAILS_META_DATA.length - 1]);
 
 				window.addEventListener('resize', onWindowResize);
 
@@ -811,6 +789,35 @@
 								console.error(error);
 							});
 					});
+			}
+
+			function loadEnvironment(environment) {
+				THREE.DefaultLoadingManager.onLoad = function () {
+
+					pmremGenerator.dispose();
+
+				};
+
+
+				new EXRLoader()
+					.setDataType(THREE.UnsignedByteType)
+					.load(`assets/textures/${environment}.exr`, function (texture) {
+						exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+						exrBackground = exrCubeRenderTarget.texture;
+
+						texture.dispose();
+					});
+
+				new THREE.TextureLoader().load(`assets/textures/${environment}.png`, function (texture) {
+					texture.encoding = THREE.sRGBEncoding;
+					pngCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+					pngBackground = pngCubeRenderTarget.texture;
+
+					texture.dispose();
+				});
+
+				const pmremGenerator = new THREE.PMREMGenerator(renderer);
+				pmremGenerator.compileEquirectangularShader();
 			}
 
 			function loadPainter() {
@@ -965,41 +972,22 @@
 				renderer.setAnimationLoop(render);
 			}
 
+
 			function renderEnvironment() {
-				planeMesh.material.roughness = params.roughness;
-				planeMesh.material.metalness = params.metalness;
+				background = defaultBackground;
+				if (toggleEnvironment) {
+					switch (params.envMap) {
 
-				let newEnvMap = planeMesh.material.envMap;
-				let background = scene.background;
+						case 'EXR':
+							background = exrBackground;
+							break;
+						case 'PNG':
+							background = pngBackground;
+							break;
 
-				switch (params.envMap) {
-
-					case 'EXR':
-						newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null;
-						background = exrBackground;
-						break;
-					case 'PNG':
-						newEnvMap = pngCubeRenderTarget ? pngCubeRenderTarget.texture : null;
-						background = pngBackground;
-						break;
-
+					}
 				}
-
-				if (newEnvMap !== planeMesh.material.envMap) {
-
-					planeMesh.material.envMap = newEnvMap;
-					planeMesh.material.needsUpdate = true;
-
-					planeMesh.material.map = newEnvMap;
-					planeMesh.material.needsUpdate = true;
-
-				}
-
-				planeMesh.rotation.y += 0.005;
-				planeMesh.visible = params.debug;
-
 				scene.background = background;
-				renderer.toneMappingExposure = params.exposure;
 			}
 
 			function renderAircraft() {
@@ -1209,7 +1197,8 @@
 
 		</script>
 
-		<script src="https://unpkg.com/smooth-scroll-into-view-if-needed/umd/smooth-scroll-into-view-if-needed.min.js"></script>
+		<script
+			src="https://unpkg.com/smooth-scroll-into-view-if-needed/umd/smooth-scroll-into-view-if-needed.min.js"></script>
 
 		<!-- <script>
 		function isIOS() {
